@@ -43,9 +43,15 @@ yourenvname\Scripts\activate
 pip install -r requirements.txt
 ```
 
-
 ## Project
 Finally to make the process work you need to put your Earth Engine project name into the file `extraction/gee_project.json`, the name of your project instead of mine.
+In the location said change the string framed in red.
+
+<div style="text-align: center;" >
+    <img src="images/gee_project_screen.png">
+</div>
+
+
 
 ## Execution
 To execute the program, still in the command prompt run this :
@@ -54,8 +60,7 @@ python main.py
 ```
 
 ## Drive
-In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the Google Cloud Platform
-
+In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the [Google Cloud Platform](https://console.cloud.google.com/). I let you read the document I have made for this.
 ## The App
 On the application, you have 2 main parts, the parameters and the map. Select your own parameters.
 

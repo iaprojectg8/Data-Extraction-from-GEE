@@ -1,3 +1,5 @@
 /test
 /extractionenv
 __pycache__
+/drive/credentials.json
+/drive/token.json
