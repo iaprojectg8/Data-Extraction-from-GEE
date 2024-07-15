@@ -12,6 +12,14 @@ Then you need to chose the account with which you want to connect thanks to the 
     <img src="images/bubble_account.png">
 </div>
 
+## Chose a project on which you want to work
+
+If you have already created a GEE project, it should be present here. In this case chose it. If you don't have created you GEE project yet do it and come back here to chose it
+
+<div style="text-align: center;" >
+    <img src="images/cloud_project.png">
+</div>
+
 ## Go to APIS and services
 
 Then on the welcome page you need to go on the "APIs & services" tab.

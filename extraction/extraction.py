@@ -84,6 +84,9 @@ if 'input_path' not in st.session_state:
 if "gray" not in st.session_state:
     st.session_state.gray = 0
 
+if "extracted_but_not_downloaded" not in st.session_state:
+    st.session_state.extracted_but_not_downloaded = 0
+
 
 
 
@@ -202,18 +205,21 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                     # The task manager function is responsible for the export
                     task_manager()
                     st.session_state.export_done = 1
-                
+                    st.session_state.extracted_but_not_downloaded = 0
+                               
 
                 if st.session_state.export_done:
                     # It shows that the export has been done even if there is a modification on the map, or in the choice of the image
-                    progress_text=f"The export is done - {100}%"
-                    st.progress(100, text=progress_text)
-                    st.write(st.session_state.task_text_list)
+                    if st.session_state.extracted_but_not_downloaded:
+                        progress_text=f"The export is done - {100}%"
+                        st.progress(100, text=progress_text)
+                        st.write(st.session_state.task_text_list)
                     st.success('All the tasks exported')
 
                     # Widget for the download
                     st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
                     st.button("Download folder",on_click = callback_download)
+                    st.session_state.extracted_but_not_downloaded = 1     
                     
                     # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
                     if st.session_state.download:

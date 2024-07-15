@@ -26,7 +26,7 @@ Make sure you have the following :
 
 
 1. **Create a virtual environement**:
-Open a command prompt or a terminal and use virtualenv, if you don't have it install it:
+Open a command prompt or a terminal and use virtualenv, if you don't have it, install it:
 ```
 pip install virtalenv
 ```
@@ -64,6 +64,15 @@ In order to get the files on your local computer, you can download them from the
 ## The App
 On the application, you have 2 main parts, the parameters and the map. Select your own parameters.
 
-Then use the drawing tool of the map and make a zone on which you want to extract data from. If there is data it will show you an LST visualization of your selected zone. Unfortunately, depending on your selected parameters it is possible that no data is available. Thus you need to change them to have something to extract.
+Then use the drawing tool of the map and make a zone on which you want to extract data from. If there is data it will show you an LST visualization of your selected zone. Unfortunately, depending on your selected parameters it is possible that no data is available. Thus you need to change them to have something to extract (cloud cover, coverage percentage or date interval are the best parameters to change if you don't have any data).
 
-Finally you can extract the data with the button or draw another zone.
+Thus you can extract the data with the button or draw another zone. If you need to stop the extraction during the process don't hesitate, the "Stop" button is in this purpose.
+
+Finally, you can download the folder containing all the exported data, that are stored on the drive. You just need to click on the button
+
+Here is a brief video on how you can use the app.
+
+
+[![Watch the video](images/appealing_image.png)](https://www.youtube.com/watch?v=u-F7HcA686E)
+
+

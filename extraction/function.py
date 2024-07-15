@@ -72,6 +72,7 @@ def callback_stop_export():
     st.session_state.button = 0
     st.session_state.end =  1
     st.session_state.export_done = 0
+    st.session_state.extracted_but_not_downloaded = 0
     st.session_state.downoloaded_but_not_reset = 0
     callback_gray_back()
 
