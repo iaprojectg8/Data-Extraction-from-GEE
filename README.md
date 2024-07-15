@@ -51,6 +51,8 @@ In the location said change the string framed in red.
     <img src="images/gee_project_screen.png">
 </div>
 
+## Drive
+In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the [Google Cloud Platform](https://console.cloud.google.com/). I let you read the document I have made for this.
 
 
 ## Execution
@@ -59,8 +61,6 @@ To execute the program, still in the command prompt run this :
 python main.py
 ```
 
-## Drive
-In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the [Google Cloud Platform](https://console.cloud.google.com/). I let you read the document I have made for this.
 ## The App
 On the application, you have 2 main parts, the parameters and the map. Select your own parameters.
 
@@ -68,7 +68,7 @@ Then use the drawing tool of the map and make a zone on which you want to extrac
 
 Thus you can extract the data with the button or draw another zone. If you need to stop the extraction during the process don't hesitate, the "Stop" button is in this purpose.
 
-Finally, you can download the folder containing all the exported data, that are stored on the drive. You just need to click on the button
+Finally, you can download the folder containing all the exported data, that are stored on the drive. You just need to click on the button. If it is the first time that you make the app run, you will have to connect to your Google account linked to the GEE project to be able to download. Of course, if you did not follow my guide to create your credentials, you will not be able to download, you will get an error when connecting. 
 
 Here is a brief video on how you can use the app.
 
