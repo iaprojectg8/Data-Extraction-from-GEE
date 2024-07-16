@@ -44,6 +44,11 @@ pip install -r requirements.txt
 ```
 
 ## Project
+
+First if you do not have any Google Earth Engines project, you need to create one. To do this I recommend you to watch this video:
+[![Watch the video](images/image_gee.png)](https://www.youtube.com/watch?v=B0ZOebP3OyQ)
+
+
 Finally to make the process work you need to put your Earth Engine project name into the file `extraction/gee_project.json`, the name of your project instead of mine.
 In the location said change the string framed in red.
 
