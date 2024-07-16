@@ -1,6 +1,13 @@
-from function import *
-from config.imports import *
-from config.variables import *
+# import os
+# import sys
+# print("\nfirst",sys.path)
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.join(current_dir, '..'))
+# print("\nsecond",sys.path)
+
+from extraction.helpers import *
+from utils.imports import *
+from utils.variables import *
 from drive.drive import get_files_from_drive
 
 # Authentication to a goole earth engine account and chose a project on which you are

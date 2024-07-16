@@ -1,4 +1,4 @@
-from config.imports import *
+from utils.imports import *
 
 def update_file_path():
     """

@@ -1,5 +1,5 @@
-from config.imports import *
-from config.variables import *
+from utils.imports import *
+from utils.variables import *
 
 def get_credentials():
     """

@@ -1,4 +1,4 @@
-from config.imports import *
+from utils.imports import *
 
 def start_streamlit():
     os.system("streamlit run extraction/extraction.py --server.headless true --browser.serverAddress ''")

@@ -28,7 +28,7 @@ Make sure you have the following :
 1. **Create a virtual environement**:
 Open a command prompt or a terminal and use virtualenv, if you don't have it, install it:
 ```
-pip install virtalenv
+pip install virtualenv
 ```
 Then you need to create it :
 ```
