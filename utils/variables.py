@@ -1,7 +1,7 @@
 CREDENTIALS_PATH = "drive/credentials.json"
 TOKEN_PATH = "drive/token.json"
 
-GEE_PROJECT = 'config/gee_project.json'
+GEE_PROJECT = 'utils/gee_project.json'
 
 # This is the path where all the dataste are 
 PATH =  "C:/Users/FlorianBERGERE/Keran/Groupe_Huit_Interne - Stage-IA/Dataset"

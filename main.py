@@ -1,7 +1,7 @@
 from utils.imports import *
 
 def start_streamlit():
-    os.system("streamlit run extraction/extraction.py --server.headless true --browser.serverAddress ''")
+    os.system("streamlit run extraction/extraction_script.py --server.headless true --browser.serverAddress ''")
 
 # Start Streamlit in a separate thread
 t = threading.Thread(target=start_streamlit)

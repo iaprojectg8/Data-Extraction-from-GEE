@@ -1,9 +1,9 @@
-# import os
-# import sys
-# print("\nfirst",sys.path)
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(current_dir, '..'))
-# print("\nsecond",sys.path)
+import os
+import sys
+path_to_add = os.getcwd()
+if path_to_add not in sys.path:
+    sys.path.append(path_to_add)
+# Wonder why the working directory path is not in the default path here, cause it seems to be the problem at first
 
 from extraction.helpers import *
 from utils.imports import *
