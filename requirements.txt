@@ -3,7 +3,7 @@ streamlit
 folium
 geemap
 streamlit_folium
-webview
+pywebview
 geopandas
 google-api-python-client 
 google-auth-httplib2 
