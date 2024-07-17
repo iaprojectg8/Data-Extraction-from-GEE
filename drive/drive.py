@@ -128,8 +128,10 @@ def get_folder_id(items, UHI_name):
             return item["id"]
     return None
 
+
 def download_files(service, files, download_path):
-    """Download files from Google Drive.
+    """
+    Download files from Google Drive.
 
     Args:
         service: Authorized Drive API service instance.
@@ -177,7 +179,15 @@ def download_files(service, files, download_path):
 
 
 def get_files_from_drive(path,folder_name):
-    """Main function to print the names and ids of folders in Google Drive."""
+    """
+    Download files from Google Drive.
+
+    Args:
+        path: The download will take place in this path
+        folder_name: Name of the drive folder to download
+    Returns:
+        None : In case the folder on the drive is empty
+    """
     
     # Handling credentials
     print("Handling creds")
@@ -201,7 +211,7 @@ def get_files_from_drive(path,folder_name):
     folders = list_folders(service)
     if not folders:
         print("No folders found.")
-        return
+        return None
     
     # Get the files in the folder
     print("Get the speceific folder and download the files")
@@ -212,3 +222,34 @@ def get_files_from_drive(path,folder_name):
     # Finally download the file in the requested drive folder
     download_files(service=service, files=files_list, download_path=folder_path)
     print("All the file downloaded")
+
+
+
+def does_folder_exist_on_drive(folder_name):
+    """
+    Verify if a folder already exists on the drive
+
+    Args:
+        folder_name: Name of the drive folder that exists or that will be created
+    Returns:
+        Bool : Return 1 if the folder is in the list of the drive 0 otherwise
+    """
+    # Handling credentials
+    print("Handling creds")
+    creds = handling_creds()
+
+    # Create a sevice object that allows the client to communicate with the google platform
+    print("Create the service")
+    service = build("drive", "v3", credentials=creds)
+    
+    # Get all the folders on the drive account provided by the credentials
+    print("Get the whole folder list")
+    folders = list_folders(service)
+    if not folders:
+        print("No folders found.")
+        return 0
+    print(folders)
+    print(folder_name)
+    folder_name_in_list = [folder["name"]==folder_name for folder in folders]
+    
+    return any(folder_name_in_list)

@@ -73,8 +73,8 @@ if "task_text_list_downloaded" not in st.session_state:
     st.session_state.task_text_list_downloaded = ""
 
 # Session variable to show information about the download, even after some modification when the stop button has not been clicked
-if "downoloaded_but_not_reset" not in st.session_state:
-    st.session_state.downoloaded_but_not_reset = 0
+if "downloaded_but_not_reset" not in st.session_state:
+    st.session_state.downloaded_but_not_reset = 0
 
 # Session variable to track the folder path for the download
 if "folder_path" not in st.session_state:
@@ -176,7 +176,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
             m_geemap.add_basemap(basemap=basemap)
 
             # Extract the data and return the map with LST visualisation
-            m_geemap, folder = extract_data(    
+            m_geemap, folder, folder_existance = extract_data(    
                 map = m_geemap,
                 aoi=ee_geometry,
                 EPSGloc=str(st.session_state.epsg_location),
@@ -189,6 +189,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 coverage_threshold=coverage_threshold,
                 namelbl=name_of_area
             )
+        
             st.session_state.second_map = m_geemap
             # Display the map in case data has been extracted
             if st.session_state.data:
@@ -198,7 +199,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 
                 # Two buttons to launch or stop the export
                 with col2:
-                    st.button("Launch exports",on_click=callback_map)
+                    st.button("Launch exports",on_click=callback_launch)
 
                 with col3:
                     st.button("Stop", on_click=callback_stop_export)
@@ -207,9 +208,11 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 st.session_state.exported_but_not_downloaded = 0
                 if st.session_state.button and st.session_state.end:
                     # The task manager function is responsible for the export
-                    task_manager()
+
+                    task_manager(folder_existance=folder_existance)
                     st.session_state.export_done = 1
                     st.session_state.extracted_but_not_downloaded = 0
+                    print(st.session_state.downloaded_but_not_reset)
                                
 
                 if st.session_state.export_done:
@@ -240,11 +243,11 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         get_files_from_drive(path=st.session_state.folder_path,folder_name=folder)
                         print("Everyting done")
                         st.session_state.download = 0
-                        st.session_state.downoloaded_but_not_reset = 1
+                        st.session_state.downloaded_but_not_reset = 1
                         st.success("Everything has been downloaded")
 
                     # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
-                    elif st.session_state.downoloaded_but_not_reset:
+                    elif st.session_state.downloaded_but_not_reset:
                         progress_text=f"The download is done - {100}%"
                         st.progress(100, text=progress_text)
                         st.write(st.session_state.task_text_list_downloaded)

@@ -1,5 +1,6 @@
 from utils.imports import *
 from utils.variables import GEE_PROJECT, DOWNLOAD_PATH
+from drive.drive import does_folder_exist_on_drive
 
 
 def save_path():
@@ -103,7 +104,7 @@ def callback_gray_back():
     st.session_state.gray = 0
 
 
-def callback_map():
+def callback_launch():
     """
     Callback function to update session state variables when the "Launch" button is clicked.
     This is just to specify that the button is on and that the first map should not be 
@@ -116,6 +117,9 @@ def callback_map():
 
     st.session_state.expanded = 0
     st.session_state.button = 1
+    st.session_state.extracted_but_not_downloaded = 0
+    st.session_state.downloaded_but_not_reset = 0
+
     callback_gray()
 
 
@@ -144,7 +148,7 @@ def callback_stop_export():
     st.session_state.end =  1
     st.session_state.export_done = 0
     st.session_state.extracted_but_not_downloaded = 0
-    st.session_state.downoloaded_but_not_reset = 0
+    st.session_state.downloaded_but_not_reset = 0
     callback_gray_back()
 
 def update_location_info(coordinates):
@@ -216,7 +220,7 @@ def get_epsg_from_rectangle(rectangle_coords):
 
 
 
-def task_manager():
+def task_manager(folder_existance):
     """
     Function to manage tasks. Everything is done with session state variable, this is why there is not 
     any parameter or return. This goes when the "Launch button is activated, the task are successively
@@ -236,19 +240,24 @@ def task_manager():
             writer = st.empty()
             task_list = st.session_state.task_list
             for i, task in enumerate(task_list):
-
-                if not task.active():
+                print("Task", task.config["description"])
+                if not task.active() :
                     
                     # Launch the task
-                    task.start()
-                    task_description = get_task_description(task)
+                    if not folder_existance:
+                        task.start()
+                    else:
+                        time.sleep(0.5)
+                    task_description = get_task_description(task, folder_existance)
                     task_description_list.append(task_description)
                     st.session_state.task_text_list = " - ".join(task_description_list)
                     writer.write(st.session_state.task_text_list)
                     print(f"{task_description} starts")
-        
-                    check_task_status(task)
+                    if not folder_existance:   
+                        check_task_status(task)
                     print(f"{task_description} ends")
+
+                    
 
                 percent = (i+1) / len(task_list)
                 progress_text=f"The export is ongoing - {percent*100}%"
@@ -265,7 +274,7 @@ def task_manager():
         # a message to notify that everything goes well 
         
 
-def get_task_description(task):
+def get_task_description(task,folder_existance):
     """
     Function to get the name of the processing task.
     Args: 
@@ -273,11 +282,20 @@ def get_task_description(task):
     Returns:
         str: Formatted description of the task.
     """
-    if  "_" in task.status()["description"]:
-        task_description_list = task.status()["description"].split("_")
-        task_description = " ".join(task_description_list[:-1])
+
+
+    if folder_existance:
+        if  "_" in task.config["description"]:
+            task_description_list = task.config["description"].split("_")
+            task_description = " ".join(task_description_list[:-1])
+        else:
+            task_description = task.status()["description"]
     else:
-        task_description = task.status()["description"]
+        if  "_" in task.status()["description"]:
+            task_description_list = task.status()["description"].split("_")
+            task_description = " ".join(task_description_list[:-1])
+        else:
+            task_description = task.status()["description"]
 
     return task_description
 
@@ -459,6 +477,7 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
     STD_NAMES = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'temp']
     # Coverage threshold corresponds to the part of the image that exists in the temperature band
     folder = None
+    folder_existance = 0
       
     # Extract an image collection from Landsat 8
     imageL8 = ee.ImageCollection("LANDSAT/LC08/C02/T1_L2") \
@@ -562,7 +581,13 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         # Get et put in string important variables
         CRS = f'EPSG:{EPSGloc}'
         UTM = str(EPSGloc)
-        folder = f'UHI_{namelbl}_{EPSGloc}'
+
+        date_split =  date.split("-")
+        date = "_".join(date_split)
+        folder = f'UHI_{namelbl}_n°{index}_{date}_{EPSGloc}'
+
+        if does_folder_exist_on_drive(folder):
+            folder_existance = 1
 
         # Task list initialization
         export_task_list = []
@@ -670,4 +695,4 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         st.write("No data available for the selected parameters, try with a different date interval or cloud cover")
         st.session_state.data = 0
 
-    return map, folder
+    return map, folder, folder_existance

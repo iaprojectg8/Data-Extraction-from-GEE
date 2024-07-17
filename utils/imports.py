@@ -13,6 +13,7 @@ import geemap.foliumap as geemap
 # A lot of needed module for the app to work
 import webview
 import math
+import time
 import threading
 import os
 from datetime import datetime
