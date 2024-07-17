@@ -1,9 +1,11 @@
 import os
 import sys
+
+# We need this to be able to access the entire repo
 path_to_add = os.getcwd()
 if path_to_add not in sys.path:
     sys.path.append(path_to_add)
-# Wonder why the working directory path is not in the default path here, cause it seems to be the problem at first
+
 
 from extraction.helpers import *
 from utils.imports import *
@@ -219,12 +221,16 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                     st.success('All the tasks exported')
 
                     # Widget for the download
-                    st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
-                    col1,col12, col2 = st.columns([0.4, 0.65,0.25],gap="large")  # Adjust the column widths as needed
+
+                    
+                    col1, col2 = st.columns([1.2,0.20],gap="small", vertical_alignment="bottom")  # Adjust the column widths as needed
                     with col1:
-                        download_clicked = st.button("Download folder", on_click=callback_download)
+                        st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
+                        
                     with col2:
                         save_clicked = st.button("Save path", on_click=save_path)
+
+                    download_clicked = st.button("Download folder", on_click=callback_download)
                     st.session_state.extracted_but_not_downloaded = 1     
                     
                     # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
