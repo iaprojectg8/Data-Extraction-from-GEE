@@ -26,14 +26,11 @@ Make sure you have the following :
 
 
 1. **Create a virtual environement**:
-Open a command prompt or a terminal and use virtualenv, if you don't have it, install it:
+Open a command prompt or a terminal and create a virtual environment:
 ```
-pip install virtualenv
+python -m venv yourenvname
 ```
-Then you need to create it :
-```
-virtualenv yourenvname
-```
+
 2. **Activate it**:
 ```
 yourenvname\Scripts\activate
