@@ -11,13 +11,8 @@ from utils.variables import *
 from drive.drive import get_files_from_drive
 
 # Authentication to a goole earth engine account and chose a project on which you are
-ee.Authenticate()
+initialize_earth_engine()
 
-# Maybe need to create one if you don't have any
-with open(GEE_PROJECT, 'r') as f:
-    config = json.load(f)
-
-ee.Initialize(project=config["project"])
 
 # Session variable to know if the user clicked on the button. If so the variable will be 1 else 0
 if "button" not in st.session_state:
@@ -225,7 +220,11 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
 
                     # Widget for the download
                     st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
-                    st.button("Download folder",on_click = callback_download)
+                    col1,col12, col2 = st.columns([0.4, 0.65,0.25],gap="large")  # Adjust the column widths as needed
+                    with col1:
+                        download_clicked = st.button("Download folder", on_click=callback_download)
+                    with col2:
+                        save_clicked = st.button("Save path", on_click=save_path)
                     st.session_state.extracted_but_not_downloaded = 1     
                     
                     # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed

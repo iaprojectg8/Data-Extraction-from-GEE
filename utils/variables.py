@@ -2,19 +2,23 @@ CREDENTIALS_PATH = "drive/credentials.json"
 TOKEN_PATH = "drive/token.json"
 
 GEE_PROJECT = 'utils/gee_project.json'
+DOWNLOAD_PATH = "drive/download_path.txt"
 
-# This is the path where all the dataste are 
-PATH =  "C:/Users/FlorianBERGERE/Keran/Groupe_Huit_Interne - Stage-IA/Dataset"
+
 
 # This scope is the only one to use because this is the one that provide all the abilities on files and folders
 SCOPE = "https://www.googleapis.com/auth/drive"
 
 
 
-
+def get_download_path():
+    with open(DOWNLOAD_PATH,"r") as f:
+        path = f.read()
+    return path
     
 
-
+# This is the path where all the dataste are 
+PATH =  get_download_path()
 
 
 
