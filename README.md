@@ -54,8 +54,9 @@ In the location said change the string framed in red.
 </div>
 
 ## Drive
-In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the [Google Cloud Platform](https://console.cloud.google.com/). I let you read the document I have made for this.
+In order to get the files on your local computer, you can download them from the app. But to be able to do that you need to get your own credentials, from the [Google Cloud Platform](https://console.cloud.google.com/). I let you read the document I have made for this. Watch this video to configure your drive and credentials properly. 
 
+[![Watch the video](images/Readme_picture.png)](https://www.youtube.com/watch?v=BDu-uKlADxs )
 
 ## Execution
 To execute the program, still in the command prompt run this :
@@ -76,5 +77,3 @@ Here is a brief video on how you can use the app.
 
 
 [![Watch the video](images/appealing_image.png)](https://www.youtube.com/watch?v=u-F7HcA686E)
-
-
