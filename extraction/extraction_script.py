@@ -15,6 +15,12 @@ from drive.drive import get_files_from_drive
 # Authentication to a goole earth engine account and chose a project on which you are
 initialize_earth_engine()
 
+if "subprocess" not in st.session_state:
+    st.session_state.subprocess = None
+
+# Session variable to know if the user clicked on the converter button. If so the variable will be 1 else 0
+if "button_converter" not in st.session_state:
+    st.session_state.button_converter = 0
 
 # Session variable to know if the user clicked on the button. If so the variable will be 1 else 0
 if "button" not in st.session_state:
@@ -42,7 +48,7 @@ if "data" not in st.session_state:
 
 # Session variable to know what is the place of the selected area. Need to be change by the user typing in the right field, name area
 if "epsg_location" not in st.session_state:
-    st.session_state.epsg_location = "No data"
+    st.session_state.epsg_location = 0
 
 # Session variable to know when the download button has been clicked and then enter an if statement to launch the downloading from the drive
 if "download" not in st.session_state:
@@ -113,7 +119,7 @@ basemap = st.sidebar.selectbox("Select a basemap:", options, index,disabled=st.s
 name_of_area = st.sidebar.text_input('Enter the name of the area', "No data",disabled=st.session_state.gray)
 max_cloud_percentage = st.sidebar.slider('Select the maximum cloud percentage on land for LandSat extraction', 0, 100, 5,disabled=st.session_state.gray)
 coverage_threshold = st.sidebar.slider("Select the coverage threshold",0, 100, 90,disabled=st.session_state.gray )
-epsg_loation = st.sidebar.text_input("Enter EPSG location", st.session_state.gray, disabled=True)
+epsg_loation = st.sidebar.text_input("Enter EPSG location", st.session_state.epsg_location, disabled=True)
 start_date = st.sidebar.date_input('Select the start date for LST extraction', value=default_start_date, min_value=min_date,disabled=st.session_state.gray)
 end_date = st.sidebar.date_input('Select the end date for LST extraction', value=default_end_date, min_value=start_date,disabled=st.session_state.gray)
 start_hour = st.sidebar.slider('Select start hour of time slot', 0, 23, 6,disabled=st.session_state.gray)
@@ -144,6 +150,15 @@ st.session_state.first_map = m
 with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
     output = st_folium(st.session_state.first_map, width=800, height=500)
 
+
+## This will be the futures button to convert the downloaded files into one CSV containing everything
+st.button("Convert to CSV",on_click=callback_convert)
+st.button("Stop CSV convertion",on_click=callback_stop_converter)
+if st.session_state.button_converter:
+    st.session_state.subprocess = subprocess.Popen(['pythonosg.exe', 'pyqgis/csv_converter.py'])
+    st.session_state.button_converter = 0
+
+
 # To know what has been selected by the user and the drawing tool
 if 'last_active_drawing' in output and output['last_active_drawing'] is not None:
     last_drawing = output['last_active_drawing']
@@ -165,7 +180,6 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
             if "geometry" not in st.session_state:
                 st.session_state.geometry = ee_geometry
             if ee_geometry != st.session_state.geometry:
-                print("i am here")
                 st.session_state.geometry = ee_geometry
                 callback_stop_export() 
         
@@ -245,6 +259,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.session_state.download = 0
                         st.session_state.downloaded_but_not_reset = 1
                         st.success("Everything has been downloaded")
+                        st.button("Convert to CSV")
 
                     # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
                     elif st.session_state.downloaded_but_not_reset:
@@ -252,6 +267,8 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.progress(100, text=progress_text)
                         st.write(st.session_state.task_text_list_downloaded)
                         st.success("Everything has been downloaded")
+                        st.button("Convert to CSV")
+                        ## A partir de là lancer un script permettant de faire tourner l'algo qgis 
                     
                     
                         

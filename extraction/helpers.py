@@ -3,6 +3,17 @@ from utils.variables import GEE_PROJECT, DOWNLOAD_PATH
 from drive.drive import does_folder_exist_on_drive
 
 
+
+def callback_convert():
+    st.session_state.button_converter = 1
+    callback_launch()
+
+
+def callback_stop_converter():
+    if st.session_state.button_converter:
+        st.session_state.subprocess.terminate()
+
+
 def save_path():
     """
     Open the download_path.txt file to change the path if requested (button clicked)
