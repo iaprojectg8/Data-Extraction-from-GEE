@@ -37,6 +37,8 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         self.addParameter(QgsProcessingParameterFeatureSink('tableur_sortie', 'Tableur en sortie', type=QgsProcessing.TypeVectorAnyGeometry, createByDefault=True, supportsAppend=True, defaultValue=None))
         
 
+
+    
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
@@ -46,6 +48,12 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs = {}
         source_crs = parameters['scr_de_projection_des_donnes']
         target_crs = QgsCoordinateReferenceSystem('EPSG:4326')
+
+        step = 0
+        total_step = 60
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {0}%"
+        progress_bar = st.progress(0, text=progress_text)
 
         # Reprojection de la catégorie hydrologique
         alg_params = {
@@ -65,10 +73,17 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ReprojectionDeLaCatgorieHydrologique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
-    
-        feedback.setCurrentStep(1)
+        
+        
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
+        
 
         # Reprojection de la nature du sol
         alg_params = {
@@ -89,9 +104,16 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['ReprojectionDeLaNatureDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
     
-        feedback.setCurrentStep(2)
+        
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
+        
 
         # Reprojection du MNT
         alg_params = {
@@ -112,9 +134,17 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['ReprojectionDuMnt'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
     
-        feedback.setCurrentStep(3)
+        
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
+        
+
 
         # Reprojection de la hauteur arborée
         alg_params = {
@@ -136,9 +166,17 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         print("Reprojection done")
     
 
-        feedback.setCurrentStep(4)
+        
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
+        
+
 
         # Découpage de la nature du sol
         alg_params = {
@@ -154,9 +192,17 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['DcoupageDeLaNatureDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Landcover cut done")
     
-        feedback.setCurrentStep(5)
+        
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
+        
+
 
         # Découpage du MNT
         alg_params = {
@@ -171,10 +217,14 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['DcoupageDuMnt'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("DEM cut done")
-    
-        feedback.setCurrentStep(6)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+
 
         # Découpage de la catégorie hydrologique
         alg_params = {
@@ -190,9 +240,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['DcoupageDeLaCatgorieHydrologique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Cut done")
     
-        feedback.setCurrentStep(7)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Reprojection de l'occupation du sol
         alg_params = {
@@ -213,9 +267,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['ReprojectionDeLoccupationDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
     
-        feedback.setCurrentStep(8)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Reprojection de l'image LandSat
         alg_params = {
@@ -236,9 +294,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['ReprojectionDeLimageLandsat'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
     
-        feedback.setCurrentStep(9)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Découpage de la hauteur arborée
         alg_params = {
@@ -254,9 +316,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['DcoupageDeLaHauteurArbore'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Cut done")
     
-        feedback.setCurrentStep(10)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
         
         # Reprojection de la zone climatique
         alg_params = {
@@ -277,9 +343,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['ReprojectionDeLaZoneClimatique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reprojection done")
     
-        feedback.setCurrentStep(11)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Découpage de l'image LandSat
         alg_params = {
@@ -294,7 +364,14 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['DcoupageDeLimageLandsat'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Cut done")
-
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        
         alg_params_rearrange = {
             'INPUT': outputs['ReprojectionDeLimageLandsat']['OUTPUT'],
             'BANDS': [1, 2, 3, 4, 5, 6],  # Exclude the 7th band
@@ -302,6 +379,14 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs["BandSelection"] = processing.run('gdal:rearrange_bands', alg_params_rearrange, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rearranged raster")
+
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
         # Découpage de l'image LandSat
         alg_params = {
             'DATA_TYPE': 0,  # Utiliser le type de donnée de la couche en entrée
@@ -315,9 +400,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['DcoupageLS'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Decoupage ls done")
-        # feedback.setCurrentStep(12)
-        # if feedback.isCanceled():
-        #     return {}
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Calcul de l'exposition
         alg_params = {
@@ -341,9 +430,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['CalculDeLexposition'] = processing.run('gdal:aspect', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Calculus done")
     
-        feedback.setCurrentStep(13)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Vectorisation de l'image LandSat 9 (LST)
         alg_params = {
@@ -355,9 +448,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         outputs['VectorisationDeLimageLandsat9Lst'] = processing.run('native:pixelstopoints', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Vectorization done")
     
-        feedback.setCurrentStep(14)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Calcul de la pente
         alg_params = {
@@ -373,9 +470,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['CalculDeLaPente'] = processing.run('gdal:slope', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Calculus done")
-        feedback.setCurrentStep(15)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Découpage de l'occupation du sol
         alg_params = {
@@ -390,9 +491,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['DcoupageDeLoccupationDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Cut done")
-        feedback.setCurrentStep(16)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Découpage de la zone climatique
         alg_params = {
@@ -407,9 +512,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['DcoupageDeLaZoneClimatique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Cut  done")
-        feedback.setCurrentStep(17)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
 
         # Ajouter les champs X/Y à la couche
@@ -421,9 +530,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['AjouterLesChampsXyLaCouche'] = processing.run('native:addxyfields', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("X and y done")
-        feedback.setCurrentStep(19)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         
 
@@ -436,9 +549,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampY'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename done")
-        feedback.setCurrentStep(22)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ x
         alg_params = {
@@ -449,9 +566,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampX'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename done")
-        feedback.setCurrentStep(23)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction des bandes LandSat
         alg_params = {
@@ -462,9 +583,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDesBandesLandsat'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction done")
-        feedback.setCurrentStep(24)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de l'occupation du sol
         alg_params = {
@@ -475,9 +600,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLoccupationDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction done")
-        feedback.setCurrentStep(25)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ d'occupation du sol
         alg_params = {
@@ -488,9 +617,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDoccupationDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename done")
-        feedback.setCurrentStep(26)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction du caractère Urbain-Rural
         alg_params = {
@@ -504,9 +637,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDuCaractreUrbainrural'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction done")
-        feedback.setCurrentStep(27)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de l'altitude
         alg_params = {
@@ -517,9 +654,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaltitude'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction lat done")
-        feedback.setCurrentStep(28)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ d'altitude
         alg_params = {
@@ -530,9 +671,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDaltitude'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Reanme lat done")
-        feedback.setCurrentStep(29)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de l'exposition
         alg_params = {
@@ -543,9 +688,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLexposition'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction expo done")
-        feedback.setCurrentStep(30)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ d'exposition
         alg_params = {
@@ -556,9 +705,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDexposition'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename done")
-        feedback.setCurrentStep(31)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de la pente
         alg_params = {
@@ -569,9 +722,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaPente'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Exraction pente done")
-        feedback.setCurrentStep(32)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ de pente
         alg_params = {
@@ -582,9 +739,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDePente'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename pente done")
-        feedback.setCurrentStep(33)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de la nature du sol
         alg_params = {
@@ -595,9 +756,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaNatureDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction natsol done")
-        feedback.setCurrentStep(34)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ de nature du sol
         alg_params = {
@@ -608,9 +773,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDeNatureDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename natsol done")
-        feedback.setCurrentStep(35)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de la hauteur arborée
         alg_params = {
@@ -621,9 +790,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaHauteurArbore'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extract hauteur arbre done")
-        feedback.setCurrentStep(36)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ de hauteur arborée
         alg_params = {
@@ -634,9 +807,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDeHauteurArbore'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename hauta done")
-        feedback.setCurrentStep(37)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de la catégorie hydrologique
         alg_params = {
@@ -647,9 +824,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaCatgorieHydrologique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extraction cathyd done")
-        feedback.setCurrentStep(38)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ de catégorie hydrologique
         alg_params = {
@@ -660,9 +841,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['RenommageDuChampDeCatgorieHydrologique'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename cathyd done")
-        feedback.setCurrentStep(39)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Extraction de la zone climatique
         alg_params = {
@@ -673,9 +858,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['ExtractionDeLaZoneClimatique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Extract zoncli done")
-        feedback.setCurrentStep(40)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Renommage du champ de zone climatique
         alg_params = {
@@ -687,9 +876,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         
         outputs['RenommageDuChampDeZoneClimatique'] = processing.run ('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Rename zonecli done")
-        feedback.setCurrentStep(41)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Suppression des points avec données attributaires "nan"
 
@@ -711,9 +904,13 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         outputs['SuppressionDesPointsAvecDonnesAttributairesNan'] = processing.run('native:extractbyexpression', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         print("Delete nan done")
-        feedback.setCurrentStep(42)
+        step+=1
+        feedback.setCurrentStep(step)
         if feedback.isCanceled():
             return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
 
         # Calcul de l'albedo
        
@@ -727,8 +924,16 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'OUTPUT': parameters['tableur_sortie']
         }
         outputs['CalculDeLalbedo'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        
         print("CSV generated")
+        step+=1
+        feedback.setCurrentStep(step)
+        if feedback.isCanceled():
+            return {}
+        percent = step/total_step
+        progress_text=f"The export is ongoing - {percent*100}%"
+        progress_bar.progress(percent, text=progress_text)
+        print(step)
+
         results['TableurEnSortie'] = outputs['CalculDeLalbedo']['OUTPUT']
         return results
 
