@@ -4,6 +4,7 @@ TOKEN_PATH = "drive/token.json"
 GEE_PROJECT = 'utils/gee_project.json'
 DOWNLOAD_PATH = "drive/download_path.txt"
 
+PYTHON_EXECUTABLE_PATH = "pyqgis/utils/python_executable.json"
 
 
 # This scope is the only one to use because this is the one that provide all the abilities on files and folders

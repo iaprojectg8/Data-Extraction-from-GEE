@@ -151,14 +151,6 @@ with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"
     output = st_folium(st.session_state.first_map, width=800, height=500)
 
 
-## This will be the futures button to convert the downloaded files into one CSV containing everything
-st.button("Convert to CSV",on_click=callback_convert)
-st.button("Stop CSV convertion",on_click=callback_stop_converter)
-if st.session_state.button_converter:
-    st.session_state.subprocess = subprocess.Popen(['pythonosg.exe', 'pyqgis/csv_converter.py'])
-    st.session_state.button_converter = 0
-
-
 # To know what has been selected by the user and the drawing tool
 if 'last_active_drawing' in output and output['last_active_drawing'] is not None:
     last_drawing = output['last_active_drawing']
@@ -259,7 +251,16 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.session_state.download = 0
                         st.session_state.downloaded_but_not_reset = 1
                         st.success("Everything has been downloaded")
-                        st.button("Convert to CSV")
+                        ## This will be the futures button to convert the downloaded files into one CSV containing everything
+
+                        st.button("Convert to CSV",on_click=callback_convert)
+                        st.button("Stop CSV convertion",on_click=callback_stop_converter)
+                        if st.session_state.button_converter:
+                            folder_path = os.path.join(st.session_state.folder_path,folder)
+                            st.session_state.subprocess = subprocess.Popen([f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{folder_path}"])
+                            st.session_state.button_converter = 0
+                            callback_stop_converter()
+                            st.success("Everyfile has been merged in a CSV")
 
                     # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
                     elif st.session_state.downloaded_but_not_reset:
@@ -267,7 +268,15 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.progress(100, text=progress_text)
                         st.write(st.session_state.task_text_list_downloaded)
                         st.success("Everything has been downloaded")
-                        st.button("Convert to CSV")
+                        
+                        st.button("Convert to CSV",on_click=callback_convert)
+                        st.button("Stop CSV convertion",on_click=callback_stop_converter)
+                        if st.session_state.button_converter:
+                            folder_path = os.path.join(st.session_state.folder_path,folder)
+                            st.session_state.subprocess = subprocess.Popen([f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{folder_path}"])
+                            st.session_state.button_converter = 0
+                            callback_stop_converter()
+                            st.success("Everyfile has been merged in a CSV")    
                         ## A partir de là lancer un script permettant de faire tourner l'algo qgis 
                     
                     

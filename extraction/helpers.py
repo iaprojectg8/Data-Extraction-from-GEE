@@ -1,17 +1,19 @@
 from utils.imports import *
-from utils.variables import GEE_PROJECT, DOWNLOAD_PATH
+from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH
 from drive.drive import does_folder_exist_on_drive
 
 
 
 def callback_convert():
     st.session_state.button_converter = 1
-    callback_launch()
+    st.session_state.expanded = 0
+    st.session_state.gray = 1
 
 
 def callback_stop_converter():
-    if st.session_state.button_converter:
-        st.session_state.subprocess.terminate()
+    st.session_state.button_converter = 0
+    st.session_state.expanded = 1
+    st.session_state.gray = 0
 
 
 def save_path():
@@ -22,6 +24,12 @@ def save_path():
     with open(DOWNLOAD_PATH, "w") as f:
         f.write(st.session_state.input_path)
 
+
+def get_python_executable_name():
+    with open(PYTHON_EXECUTABLE_PATH, 'r') as f:
+        config = json.load(f)
+        python_executable_name = config["python_name"]
+    return python_executable_name
 
 
 def initialize_earth_engine():
@@ -93,27 +101,6 @@ def update_file_path():
     """
     st.session_state.folder_path = st.session_state.input_path
 
-def callback_gray():
-    """
-    Callback function to make all the parameters disabled
-    Args: 
-        None
-    Returns:
-        None
-    """
-    st.session_state.gray = 1
-
-
-def callback_gray_back():
-    """
-    Callback function to make all the parameters widget available again
-    Args: 
-        None
-    Returns:
-        None
-    """
-    st.session_state.gray = 0
-
 
 def callback_launch():
     """
@@ -130,8 +117,8 @@ def callback_launch():
     st.session_state.button = 1
     st.session_state.extracted_but_not_downloaded = 0
     st.session_state.downloaded_but_not_reset = 0
-
-    callback_gray()
+    st.session_state.gray = 1
+    
 
 
 
@@ -160,7 +147,7 @@ def callback_stop_export():
     st.session_state.export_done = 0
     st.session_state.extracted_but_not_downloaded = 0
     st.session_state.downloaded_but_not_reset = 0
-    callback_gray_back()
+    st.session_state.gray = 0
 
 def update_location_info(coordinates):
     """

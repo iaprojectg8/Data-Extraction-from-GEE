@@ -7,16 +7,16 @@ def make_csv(city):
 
 
 def reorganize_folder(path):
-    
-    # Boolean to know if the data folder is created
-    data_created = 0
+    print(path)
     folder_dir = os.listdir(path)
     if DATA_FOLDER in folder_dir:
         print("Data folder already created")
         data_folder_path= os.path.join(path,DATA_FOLDER)
+        print(data_folder_path)
         data_created = 1
     else : 
         data_folder_path = os.path.join(path,DATA_FOLDER)
+        print(data_folder_path)
         os.makedirs(data_folder_path)
         for filename in os.listdir(path):
             file_path = os.path.join(path, filename)
@@ -27,16 +27,21 @@ def reorganize_folder(path):
 
     if RESULTS_FOLDER in folder_dir:
         results_folder_path = os.path.join(path,RESULTS_FOLDER)
+        print(results_folder_path)
         print("Results folder already created")
     else : 
         results_folder_path = os.path.join(path,RESULTS_FOLDER)
+        print(results_folder_path)
         os.makedirs(results_folder_path)
 
-    if data_created:
-        return data_folder_path, results_folder_path
+    return data_folder_path, results_folder_path
 
 def get_epsg_and_city(entire_path:str):
-    folder_name = entire_path.split("/")[-1]
+    # separator = r'[\\\\/]'
+    # folder_name = re.split(entire_path,separator)
+    # print(folder_name)
+    # print(folder_name[-1])
+    folder_name = entire_path.split("\\")[-1]
     folder_name_list = folder_name.split("_")
     epsg = folder_name_list[-1]
     date = "_".join([folder_name_list[-4],folder_name_list[-3],folder_name_list[-2]])
@@ -83,8 +88,11 @@ def get_parameters(data_path, results_path, epsg_num, city):
     hauteur_arboree_raster = ''
     categorie_hydrologique_raster = ''
     zone_climatique_raster = ''
+    ### city n'est surement pas bon, à voir pour le change ensuite
     csv_file = make_csv(city)
+    print(csv_file)
     tableur_sortie = os.path.join(results_path,csv_file)
+    print(tableur_sortie)
 
     # Loop through files and match based on conditions
     for file in files_in_directory:
@@ -145,9 +153,16 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     Processing.initialize()
 
-    path="C:/Users/FlorianBERGERE/Keran/Groupe_Huit_Interne - Stage-IA/Dataset/UHI_Yaoundé_n°0_2022_01_31_32632"
+    parser = argparse.ArgumentParser(description='Run QGIS processing with specified path.')
+    parser.add_argument('path', type=str, help='Path to the input directory')
+    args = parser.parse_args()
+
+    path = args.path
+    print(path)
     epsg, city = get_epsg_and_city(path)
+    print(city)
     data_path, results_path = reorganize_folder(path)
+    print("result path", results_path)
     parameters = get_parameters(data_path, results_path,epsg_num=epsg,city=city)
     print(parameters)  # For testing, print the parameters
 
