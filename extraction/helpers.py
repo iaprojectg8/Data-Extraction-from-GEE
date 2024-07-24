@@ -3,6 +3,37 @@ from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH
 from drive.drive import does_folder_exist_on_drive
 
 
+def communicate_with_child():
+    # Create a Streamlit progress bar
+    progress_bar = st.progress(0)
+    progress_text = st.empty()
+
+    if st.button("Click"):
+        # Launch subprocess with a timeout
+    
+        process = subprocess.Popen(
+            ['python', 'subprocess_script.py'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True  # This makes sure the output is read as text instead of bytes
+        )
+
+        # Read progress updates from the subprocess
+        for line in process.stdout:
+            st.write(f"Received line: {line.strip()}")  # Debug: Show received lines
+            try:
+                progress = int(line.strip())*10
+                progress_bar.progress(progress)
+                progress_text.text(f"Progress: {progress}%")
+                if progress >= 100:
+                    break
+            except ValueError:
+                st.write(f"ValueError: Could not convert {line.strip()} to int")  # Debug: Show conversion errors
+                continue
+
+        process.stdout.close()
+        print(process)
+
 
 def callback_convert():
     st.session_state.button_converter = 1
