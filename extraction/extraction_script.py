@@ -115,6 +115,7 @@ default_start_date = datetime(2022, 1, 1)
 default_end_date = datetime(2022, 8, 31)
 min_date = datetime(2012,2,13)
 folder = None
+geo_json = ""
 st.title("Data Extraction")
 
 ############################################### Everything that is on the left side ######################################
@@ -156,127 +157,156 @@ Draw().add_to(m)
 st.session_state.first_map = m
 
 
+uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
+
+if uploaded_files:
+    st.write("Files uploaded successfully!")
+
+    # Load the shapefile
+    gdf = load_shapefile(uploaded_files)
+    epsg=gdf.crs.to_epsg()
+    print(epsg)
+    gdf = gdf.to_crs(epsg=epsg)
+    geometries = gdf['geometry']
+    centroid = geometries.centroid.iloc[0]
+    zoom = get_gdf_zoom(gdf)
+    print(zoom)
+    m = folium.Map(location=[centroid.y, centroid.x], zoom_start=zoom)
+    for geom in geometries:
+        geo_json = mapping(geom)
+        # print(geo_json)
+        folium.GeoJson(geo_json).add_to(m)
+    st.session_state.first_map = m
+
 # This allow to hide the map when some button is pressed
 with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
-    output = st_folium(st.session_state.first_map, width=800, height=500)
+    output = st_folium(st.session_state.first_map, width=800, height=500,returned_objects="all")
+    print(output)
+    
 
 
 # To know what has been selected by the user and the drawing tool
-if 'last_active_drawing' in output and output['last_active_drawing'] is not None:
-    last_drawing = output['last_active_drawing']
-    if 'geometry' in last_drawing:
-        geometry_type = last_drawing['geometry']['type']
-        if geometry_type == 'Polygon':
-            # Extract coordinates of the drawn polygon
-            coordinates = last_drawing['geometry']['coordinates']
-          
-            epsg_code = get_epsg_from_rectangle(coordinates[0])
-            # city = update_location_info(coordinates=coordinates[0])
-            
-            st.session_state.epsg_location = epsg_code
-            # st.session_state.city = city 
-            
+if 'last_active_drawing' in output and output['last_active_drawing'] is not None or geo_json:
+    if 'last_active_drawing' in output and output['last_active_drawing'] is not None :
+        last_drawing = output['last_active_drawing']
+        if 'geometry' in last_drawing :
+            geometry = last_drawing["geometry"]
+            # geometry_type = last_drawing['geometry']['type']
+    elif geo_json :
+        geometry = geo_json
+    
+    # print("\n",output)
+    # if geometry_type == 'Polygon':
+    # Extract coordinates of the drawn polygon
+    coordinates = geometry['coordinates']
+    
+    epsg_code = get_epsg_from_rectangle(coordinates[0])
+    # city = update_location_info(coordinates=coordinates[0])
+    
+    st.session_state.epsg_location = epsg_code
+    # st.session_state.city = city 
+    
 
-            # Convert the coordinates to ee.Geometry
-            ee_geometry = ee.Geometry.Polygon(coordinates)
-            if "geometry" not in st.session_state:
-                st.session_state.geometry = ee_geometry
-            if ee_geometry != st.session_state.geometry:
-                st.session_state.geometry = ee_geometry
-                callback_stop_export() 
+    # Convert the coordinates to ee.Geometry
+    ee_geometry = ee.Geometry.Polygon(coordinates)
+    if "geometry" not in st.session_state:
+        st.session_state.geometry = ee_geometry
+    if ee_geometry != st.session_state.geometry:
+        st.session_state.geometry = ee_geometry
+        callback_stop_export() 
+
+    # Get the center and zoom of the map for the second one to be focus on the good area
+    center, zoom = get_geometry_center_and_zoom(ee_geometry)
+
+    m_geemap = geemap.Map(center=center, zoom=zoom)
+    m_geemap.add_basemap(basemap=basemap)
+
+    # Extract the data and return the map with LST visualisation
+    m_geemap, folder, folder_existance = extract_data(    
+        map = m_geemap,
+        aoi=ee_geometry,
+        EPSGloc=str(st.session_state.epsg_location),
+        startdate=str(start_date),
+        enddate=str(end_date),
+        starthour=str(start_hour),
+        endhour=str(end_hour),
+        dechour=str(time_difference_gmt),
+        maxcloud=max_cloud_percentage,
+        coverage_threshold=coverage_threshold,
+        namelbl=name_of_area
+    )
+
+    st.session_state.second_map = m_geemap
+    # Display the map in case data has been extracted
+    if st.session_state.data:
+        print(folder)
+        st.session_state.second_map.to_streamlit()
+        col1, col2, col3, col4= st.columns(4)
         
-            # Get the center and zoom of the map for the second one to be focus on the good area
-            center, zoom = get_geometry_center_and_zoom(ee_geometry)
+        # Two buttons to launch or stop the export
+        with col2:
+            st.button("Launch exports",on_click=callback_launch)
 
-            m_geemap = geemap.Map(center=center, zoom=zoom)
-            m_geemap.add_basemap(basemap=basemap)
-
-            # Extract the data and return the map with LST visualisation
-            m_geemap, folder, folder_existance = extract_data(    
-                map = m_geemap,
-                aoi=ee_geometry,
-                EPSGloc=str(st.session_state.epsg_location),
-                startdate=str(start_date),
-                enddate=str(end_date),
-                starthour=str(start_hour),
-                endhour=str(end_hour),
-                dechour=str(time_difference_gmt),
-                maxcloud=max_cloud_percentage,
-                coverage_threshold=coverage_threshold,
-                namelbl=name_of_area
-            )
+        with col3:
+            st.button("Stop", on_click=callback_stop_export)
         
-            st.session_state.second_map = m_geemap
-            # Display the map in case data has been extracted
-            if st.session_state.data:
-                print(folder)
-                st.session_state.second_map.to_streamlit()
-                col1, col2, col3, col4= st.columns(4)
+        # Launch the export under cetain conditions
+        st.session_state.exported_but_not_downloaded = 0
+        if st.session_state.button and st.session_state.end:
+            # The task manager function is responsible for the export
+
+            task_manager(folder_existance=folder_existance)
+            st.session_state.export_done = 1
+            st.session_state.extracted_but_not_downloaded = 0
+            print(st.session_state.downloaded_but_not_reset)
+                        
+
+        if st.session_state.export_done:
+            # It shows that the export has been done even if there is a modification on the map, or in the choice of the image
+            if st.session_state.extracted_but_not_downloaded:
+                progress_text=f"The export is done - {100}%"
+                st.progress(100, text=progress_text)
+                st.write(st.session_state.task_text_list)
+            st.success('All the tasks exported')
+
+            # Widget for the download
+
+            
+            col1, col2 = st.columns([1.2,0.20],gap="small", vertical_alignment="bottom")  # Adjust the column widths as needed
+            with col1:
+                st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
                 
-                # Two buttons to launch or stop the export
-                with col2:
-                    st.button("Launch exports",on_click=callback_launch)
+            with col2:
+                save_clicked = st.button("Save path", on_click=save_path)
 
-                with col3:
-                    st.button("Stop", on_click=callback_stop_export)
+            download_clicked = st.button("Download folder", on_click=callback_download)
+            st.session_state.extracted_but_not_downloaded = 1     
+            
+            # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
+            if st.session_state.download:
                 
-                # Launch the export under cetain conditions
-                st.session_state.exported_but_not_downloaded = 0
-                if st.session_state.button and st.session_state.end:
-                    # The task manager function is responsible for the export
+                print("All the files are going to be downloaded")
+                get_files_from_drive(path=st.session_state.folder_path,folder_name=folder)
+                print("Everyting done")
+                st.session_state.download = 0
+                st.session_state.downloaded_but_not_reset = 1
+                st.success("Everything has been downloaded")
+                ## This will be the futures button to convert the downloaded files into one CSV containing everything
+                
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                convert_to_csv()
+        
 
-                    task_manager(folder_existance=folder_existance)
-                    st.session_state.export_done = 1
-                    st.session_state.extracted_but_not_downloaded = 0
-                    print(st.session_state.downloaded_but_not_reset)
-                               
-
-                if st.session_state.export_done:
-                    # It shows that the export has been done even if there is a modification on the map, or in the choice of the image
-                    if st.session_state.extracted_but_not_downloaded:
-                        progress_text=f"The export is done - {100}%"
-                        st.progress(100, text=progress_text)
-                        st.write(st.session_state.task_text_list)
-                    st.success('All the tasks exported')
-
-                    # Widget for the download
-
+            # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
+            elif st.session_state.downloaded_but_not_reset:
+                progress_text=f"The download is done - {100}%"
+                st.progress(100, text=progress_text)
+                st.write(st.session_state.task_text_list_downloaded)
+                st.success("Everything has been downloaded")
+                
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                convert_to_csv()
+            
+                
+                
                     
-                    col1, col2 = st.columns([1.2,0.20],gap="small", vertical_alignment="bottom")  # Adjust the column widths as needed
-                    with col1:
-                        st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
-                        
-                    with col2:
-                        save_clicked = st.button("Save path", on_click=save_path)
-
-                    download_clicked = st.button("Download folder", on_click=callback_download)
-                    st.session_state.extracted_but_not_downloaded = 1     
-                    
-                    # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
-                    if st.session_state.download:
-                        
-                        print("All the files are going to be downloaded")
-                        get_files_from_drive(path=st.session_state.folder_path,folder_name=folder)
-                        print("Everyting done")
-                        st.session_state.download = 0
-                        st.session_state.downloaded_but_not_reset = 1
-                        st.success("Everything has been downloaded")
-                        ## This will be the futures button to convert the downloaded files into one CSV containing everything
-                        
-                        st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
-                        convert_to_csv()
-             
-
-                    # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
-                    elif st.session_state.downloaded_but_not_reset:
-                        progress_text=f"The download is done - {100}%"
-                        st.progress(100, text=progress_text)
-                        st.write(st.session_state.task_text_list_downloaded)
-                        st.success("Everything has been downloaded")
-                        
-                        st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
-                        convert_to_csv()
-                    
-                    
-                    
-                        

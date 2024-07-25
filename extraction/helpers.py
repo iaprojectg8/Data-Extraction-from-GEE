@@ -3,6 +3,74 @@ from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH
 from drive.drive import does_folder_exist_on_drive
 
 
+
+def get_gdf_zoom(gdf):
+    """
+    Function to estimate center and zoom level based on the bounding box of geometries
+    in a GeoDataFrame.
+
+    Args:
+        gdf (geopandas.GeoDataFrame): GeoDataFrame containing geometries.
+
+    Returns:
+        tuple: Tuple containing estimated center coordinates and zoom level.
+    """
+    # Calculate the bounds of the geometries
+    bounds = gdf.total_bounds
+    lon_min, lat_min, lon_max, lat_max = bounds
+
+    # Calculate the center of the bounding box
+    lon_center = (lon_min + lon_max) / 2
+    lat_center = (lat_min + lat_max) / 2
+
+    # Estimate zoom level based on the extent of the bounding box
+    lon_extent = lon_max - lon_min
+    lat_extent = lat_max - lat_min
+    extent = max(lon_extent, lat_extent)
+
+    # Convert extent to a zoom level
+    # Adjust zoom level calculation based on the extent
+    if extent > 0:
+        zoom = min(max(1, int(round(9 - math.log(extent, 2)))), 20)
+    else:
+        zoom = 8  # Default zoom level if extent is zero
+
+    center = [lat_center, lon_center]
+
+    return  zoom
+
+
+def load_shapefile(uploaded_files):
+    # Create a temporary directory
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        # Save the uploaded files to the temporary directory
+        for uploaded_file in uploaded_files:
+            file_path = os.path.join(tmpdirname, uploaded_file.name)
+            with open(file_path, 'wb') as f:
+                f.write(uploaded_file.getbuffer())
+        
+        # Find the .shp and .prj files
+        shp_file = [os.path.join(tmpdirname, f.name) for f in uploaded_files if f.name.endswith('.shp')][0]
+        prj_file = [os.path.join(tmpdirname, f.name) for f in uploaded_files if f.name.endswith('.prj')]
+
+        # Read the shapefile
+        gdf = gpd.read_file(shp_file)
+
+        # Load CRS from .prj file if it exists
+        if prj_file:
+            try:
+                with open(prj_file[0], 'r') as f:
+                    crs_str = f.read().strip()
+                    crs = CRS(crs_str)
+                    gdf.crs = crs
+            except Exception as e:
+                st.error(f"Error reading CRS from .prj file: {e}")
+        else:
+            st.warning("No .prj file found. Defaulting CRS to EPSG:4326.")
+            gdf.crs = CRS.from_epsg(4326)
+
+        return gdf
+
 def callback_click():
     st.session_state.launched = 1
     st.session_state.kill=0
@@ -45,13 +113,21 @@ def convert_to_csv():
 
         # Read progress updates from the subprocess
         while st.session_state.process.poll() is None:
+            text_step = ""
             for line in st.session_state.process.stdout:
-           
+                
+
+                
                 if line.startswith("PROGRESS:"):
                     progress=round(float(line.split(":")[-1])*100)
                     st.session_state.progress = progress
-                    progress_text =f"The conversion is ongoing: {progress}%"
+                    progress_text =f"The conversion is ongoing: {progress}% - {text_step}"
                     progress_bar.progress(progress,text=progress_text)
+
+
+                ### A tester en revenant de manger
+                elif line.startswith("INFO:"):
+                    text_step = line.split(":")[-1]
                     
                     
                 print(line)
@@ -259,7 +335,7 @@ def get_utm_epsg(lat, lon):
     
     return int(epsg_code)
 
-def get_epsg_from_rectangle(rectangle_coords):
+def get_epsg_from_rectangle(polygon_coordinates):
     """
     Returns the EPSG code for the UTM zone based on the centroid of the given rectangle coordinates.
 
@@ -270,7 +346,7 @@ def get_epsg_from_rectangle(rectangle_coords):
     int: EPSG code for the UTM zone.
     """
     # Create a polygon from the rectangle coordinates
-    polygon = Polygon(rectangle_coords)
+    polygon = Polygon(polygon_coordinates)
     centroid = polygon.centroid
     
     # Get the EPSG code for the UTM zone of the centroid

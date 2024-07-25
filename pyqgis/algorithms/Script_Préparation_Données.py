@@ -74,8 +74,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+    
         outputs['ReprojectionDeLaCatgorieHydrologique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
         
         
         step+=1
@@ -102,9 +103,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDeLaNatureDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
         
         step+=1
         feedback.setCurrentStep(step)
@@ -130,9 +132,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDuMnt'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
         
         step+=1
         feedback.setCurrentStep(step)
@@ -159,9 +162,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDeLaHauteurArbore'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
 
         
         step+=1
@@ -184,9 +188,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Landcover cut done")
+
         outputs['DcoupageDeLaNatureDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Landcover cut done")
-    
+        
         
         step+=1
         feedback.setCurrentStep(step)
@@ -208,8 +213,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:DEM cut done")
+    
         outputs['DcoupageDuMnt'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("DEM cut done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -228,9 +234,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Cut done")
+
         outputs['DcoupageDeLaCatgorieHydrologique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Cut done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -253,9 +260,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDeLoccupationDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -278,9 +286,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDeLimageLandsat'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -298,9 +307,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Cut done")
+
         outputs['DcoupageDeLaHauteurArbore'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Cut done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -323,9 +333,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'TARGET_RESOLUTION': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reprojection done")
+
         outputs['ReprojectionDeLaZoneClimatique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reprojection done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -343,8 +354,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Cut done")
+    
         outputs['DcoupageDeLimageLandsat'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Cut done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -356,9 +368,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'BANDS': [1, 2, 3, 4, 5, 6],  # Exclude the 7th band
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rearranged raster")
         outputs["BandSelection"] = processing.run('gdal:rearrange_bands', alg_params_rearrange, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rearranged raster")
-
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -375,8 +387,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Decoupage ls done")
+    
         outputs['DcoupageLS'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Decoupage ls done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -402,9 +415,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             print(f"The file '{filepath}' does not exist.")
         
         
+        print("INFO:Calculus done")
+
         outputs['CalculDeLexposition'] = processing.run('gdal:aspect', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Calculus done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -418,9 +432,10 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTER_BAND': parameters['numro_de_bande_de_la_lst'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Vectorization done")
+
         outputs['VectorisationDeLimageLandsat9Lst'] = processing.run('native:pixelstopoints', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Vectorization done")
-    
+        
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -439,8 +454,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'ZEVENBERGEN': False,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Calculus done")
+    
         outputs['CalculDeLaPente'] = processing.run('gdal:slope', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Calculus done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -458,8 +474,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Cut done")
+    
         outputs['DcoupageDeLoccupationDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Cut done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -477,8 +494,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PROJWIN': parameters['emprise_de_calcul_de_luhi'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Cut  done")
+    
         outputs['DcoupageDeLaZoneClimatique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Cut  done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -493,8 +511,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'PREFIX': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:X and y done")
+    
         outputs['AjouterLesChampsXyLaCouche'] = processing.run('native:addxyfields', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("X and y done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -510,8 +529,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': 'LAT',
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename done")
+    
         outputs['RenommageDuChampY'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -525,8 +545,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': 'LON',
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename done")
+    
         outputs['RenommageDuChampX'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -540,8 +561,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageLS']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction done")
+    
         outputs['ExtractionDesBandesLandsat'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -555,8 +577,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDeLoccupationDuSol']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction done")
+    
         outputs['ExtractionDeLoccupationDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -570,8 +593,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_doccupation_du_sol'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename done")
+    
         outputs['RenommageDuChampDoccupationDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -588,8 +612,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'INPUT': outputs['RenommageDuChampDoccupationDuSol']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction done")
+    
         outputs['ExtractionDuCaractreUrbainrural'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -603,8 +628,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDuMnt']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction lat done")
+    
         outputs['ExtractionDeLaltitude'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction lat done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -618,8 +644,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_daltitude'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Reanme lat done")
+    
         outputs['RenommageDuChampDaltitude'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Reanme lat done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -633,8 +660,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['CalculDeLexposition']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction expo done")
+    
         outputs['ExtractionDeLexposition'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction expo done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -648,8 +676,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_dexposition'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename done")
+    
         outputs['RenommageDuChampDexposition'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -663,8 +692,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['CalculDeLaPente']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Exraction pente done")
+    
         outputs['ExtractionDeLaPente'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Exraction pente done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -678,8 +708,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_de_pente'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename pente done")
+    
         outputs['RenommageDuChampDePente'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename pente done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -693,8 +724,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDeLaNatureDuSol']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction natsol done")
+    
         outputs['ExtractionDeLaNatureDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction natsol done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -708,8 +740,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_de_nature_du_sol'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename natsol done")
+    
         outputs['RenommageDuChampDeNatureDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename natsol done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -723,8 +756,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDeLaHauteurArbore']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extract hauteur arbre done")
+    
         outputs['ExtractionDeLaHauteurArbore'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extract hauteur arbre done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -738,8 +772,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_de_hauteur_arbore'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename hauta done")
+    
         outputs['RenommageDuChampDeHauteurArbore'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename hauta done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -753,8 +788,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDeLaCatgorieHydrologique']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extraction cathyd done")
+    
         outputs['ExtractionDeLaCatgorieHydrologique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extraction cathyd done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -768,8 +804,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'NEW_NAME': parameters['nom_du_champ_de_catgorie_hydrologique'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Rename cathyd done")
+    
         outputs['RenommageDuChampDeCatgorieHydrologique'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename cathyd done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -783,8 +820,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'RASTERCOPY': outputs['DcoupageDeLaZoneClimatique']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Extract zoncli done")
+    
         outputs['ExtractionDeLaZoneClimatique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Extract zoncli done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -799,8 +837,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         
+        print("INFO:Rename zonecli done")
+    
         outputs['RenommageDuChampDeZoneClimatique'] = processing.run ('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Rename zonecli done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -825,8 +864,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'INPUT': outputs['RenommageDuChampDeZoneClimatique']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
+        print("INFO:Delete nan done")
+    
         outputs['SuppressionDesPointsAvecDonnesAttributairesNan'] = processing.run('native:extractbyexpression', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("Delete nan done")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():
@@ -844,8 +884,9 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'INPUT': outputs['SuppressionDesPointsAvecDonnesAttributairesNan']['OUTPUT'],
             'OUTPUT': parameters['tableur_sortie']
         }
+        print("INFO:CSV generated")
+    
         outputs['CalculDeLalbedo'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        print("CSV generated")
         step+=1
         feedback.setCurrentStep(step)
         if feedback.isCanceled():

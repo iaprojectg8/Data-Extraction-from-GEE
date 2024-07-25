@@ -19,7 +19,7 @@ import subprocess
 import os
 from datetime import datetime
 import json
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, mapping
 import requests
 
 # Import for the drive downloading
@@ -31,3 +31,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 from google.auth.exceptions import RefreshError
+
+
+import geopandas as gpd
+import tempfile
+from pyproj import CRS

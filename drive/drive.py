@@ -144,7 +144,7 @@ def download_files(service, files, download_path):
         os.makedirs(download_path)
 
     with st.spinner("Downloading files"):
-        progress_text=f"The export is ongoing - {0}%"
+        progress_text=f"The download is ongoing - {0}%"
         progress_bar = st.progress(0, text=progress_text)
         task_description_list = []
         writer = st.empty()
@@ -172,7 +172,7 @@ def download_files(service, files, download_path):
                     print(f"Downloading {file_name}: {int(status.progress() * 100)}%")
             print(f"Downloaded {file_name} to {file_path}")
             percent = (i+1) / len(files)
-            progress_text=f"The export is ongoing - {round(percent*100,1)}%"
+            progress_text=f"The download is ongoing - {round(percent*100,1)}%"
             progress_bar.progress(percent, text=progress_text)
 
 
