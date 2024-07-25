@@ -14,6 +14,16 @@ from drive.drive import get_files_from_drive
 
 # Authentication to a goole earth engine account and chose a project on which you are
 initialize_earth_engine()
+if "progress" not in st.session_state:
+    st.session_state.progress = 0
+if "complete_folder_path" not in st.session_state:
+    st.session_state.complete_folder_path = ""
+if "launched" not in st.session_state:
+    st.session_state.launched = 0
+if "kill" not in st.session_state:
+    st.session_state.kill = 0
+if "process" not in st.session_state:
+    st.session_state.process = 0
 
 if "subprocess" not in st.session_state:
     st.session_state.subprocess = None
@@ -252,15 +262,10 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.session_state.downloaded_but_not_reset = 1
                         st.success("Everything has been downloaded")
                         ## This will be the futures button to convert the downloaded files into one CSV containing everything
-
-                        st.button("Convert to CSV",on_click=callback_convert)
-                        st.button("Stop CSV convertion",on_click=callback_stop_converter)
-                        if st.session_state.button_converter:
-                            folder_path = os.path.join(st.session_state.folder_path,folder)
-                            st.session_state.subprocess = subprocess.Popen([f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{folder_path}"])
-                            st.session_state.button_converter = 0
-                            callback_stop_converter()
-                            st.success("Everyfile has been merged in a CSV")
+                        
+                        st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                        convert_to_csv()
+             
 
                     # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
                     elif st.session_state.downloaded_but_not_reset:
@@ -269,15 +274,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                         st.write(st.session_state.task_text_list_downloaded)
                         st.success("Everything has been downloaded")
                         
-                        st.button("Convert to CSV",on_click=callback_convert)
-                        st.button("Stop CSV convertion",on_click=callback_stop_converter)
-                        if st.session_state.button_converter:
-                            folder_path = os.path.join(st.session_state.folder_path,folder)
-                            st.session_state.subprocess = subprocess.Popen([f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{folder_path}"])
-                            st.session_state.button_converter = 0
-                            callback_stop_converter()
-                            st.success("Everyfile has been merged in a CSV")    
-                        ## A partir de là lancer un script permettant de faire tourner l'algo qgis 
+                        st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                        convert_to_csv()
+                    
                     
                     
                         

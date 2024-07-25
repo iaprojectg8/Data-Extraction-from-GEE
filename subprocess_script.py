@@ -6,8 +6,8 @@ def main():
     for i in range(11):
         # Print progress to stdout
         print(i)
-        sys.stdout.flush()  # Ensure the output is flushed immediately
-        time.sleep(0.1)  # Simulate work being done
+        # sys.stdout.flush()  # Ensure the output is flushed immediately
+        time.sleep(1)  # Simulate work being done
 
     print("done")
 

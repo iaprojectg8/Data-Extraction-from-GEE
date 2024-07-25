@@ -3,36 +3,67 @@ from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH
 from drive.drive import does_folder_exist_on_drive
 
 
-def communicate_with_child():
-    # Create a Streamlit progress bar
-    progress_bar = st.progress(0)
-    progress_text = st.empty()
-
-    if st.button("Click"):
-        # Launch subprocess with a timeout
-    
-        process = subprocess.Popen(
-            ['python', 'subprocess_script.py'],
+def callback_click():
+    st.session_state.launched = 1
+    st.session_state.kill=0
+    print(st.session_state.complete_folder_path)
+    st.session_state.process = subprocess.Popen(
+            [f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{st.session_state.complete_folder_path}"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True  # This makes sure the output is read as text instead of bytes
         )
 
-        # Read progress updates from the subprocess
-        for line in process.stdout:
-            st.write(f"Received line: {line.strip()}")  # Debug: Show received lines
-            try:
-                progress = int(line.strip())*10
-                progress_bar.progress(progress)
-                progress_text.text(f"Progress: {progress}%")
-                if progress >= 100:
-                    break
-            except ValueError:
-                st.write(f"ValueError: Could not convert {line.strip()} to int")  # Debug: Show conversion errors
-                continue
+def callback_kill():
+    st.session_state.kill = 1
+    st.session_state.launched = 0
+    st.session_state.process.terminate()
+    
 
-        process.stdout.close()
-        print(process)
+def convert_to_csv():
+
+    # Create a Streamlit progress bar
+
+    if st.session_state.kill :
+        progress = st.session_state.progress
+        progress_text =f"The conversion has been stopped: {0}%"
+        progress_bar = st.progress(progress, progress_text)
+    else  :
+        progress = 0
+        progress_text =f"The conversion is not started: {0}%"
+        progress_bar = st.progress(progress, progress_text)
+    
+    col1, col2, col3, col4= st.columns(4)
+    with col2:
+        st.button("Convert to CSV", on_click=callback_click)
+    with col3:
+        st.button("Stop CSV convertion", on_click=callback_kill)
+        # Launch subprocess with a timeout
+    
+    if st.session_state.launched:
+
+
+        # Read progress updates from the subprocess
+        while st.session_state.process.poll() is None:
+            for line in st.session_state.process.stdout:
+           
+                if line.startswith("PROGRESS:"):
+                    progress=round(float(line.split(":")[-1])*100)
+                    st.session_state.progress = progress
+                    progress_text =f"The conversion is ongoing: {progress}%"
+                    progress_bar.progress(progress,text=progress_text)
+                    
+                    
+                print(line)
+             
+
+    if st.session_state.launched == 1 and st.session_state.process.poll() == 0:
+        st.session_state.launched = 0
+        st.success("The CSV file is ready")
+    elif st.session_state.kill == 1 and st.session_state.process.poll() == 1:
+        st.session_state.kill = 0
+        st.error("You stopped the conversion process")
+        
 
 
 def callback_convert():
