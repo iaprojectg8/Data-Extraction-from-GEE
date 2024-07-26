@@ -4,6 +4,42 @@ from drive.drive import does_folder_exist_on_drive
 
 
 
+def get_geometry_center_and_zoom_json(coordinates):
+    """
+    Function to estimate center and zoom level from a GeoJSON geometry.
+    
+    Args: 
+        geojson_geometry (dict): GeoJSON geometry object.
+        
+    Returns:
+        tuple: Tuple containing estimated center coordinates and zoom level.
+    """
+
+    # Calculate the bounds of the geometry
+    lon_min = min([point[0] for point in coordinates])
+    lon_max = max([point[0] for point in coordinates])
+    lat_min = min([point[1] for point in coordinates])
+    lat_max = max([point[1] for point in coordinates])
+
+    # Calculate the center of the geometry
+    lon_center = (lon_min + lon_max) / 2
+    lat_center = (lat_min + lat_max) / 2
+
+    # Estimate zoom level based on the extent of the geometry
+    lon_extent = lon_max - lon_min
+    lat_extent = lat_max - lat_min
+    extent = max(lon_extent, lat_extent)
+
+    # Convert extent to a zoom level
+    if extent > 0:
+        zoom = min(max(1, int(round(9 - math.log(extent, 2)))), 20)
+    else:
+        zoom = 8  # Default zoom level if extent is zero
+
+    center = [lat_center, lon_center]
+
+    return center, zoom
+
 def get_gdf_zoom(gdf):
     """
     Function to estimate center and zoom level based on the bounding box of geometries
@@ -51,24 +87,10 @@ def load_shapefile(uploaded_files):
         
         # Find the .shp and .prj files
         shp_file = [os.path.join(tmpdirname, f.name) for f in uploaded_files if f.name.endswith('.shp')][0]
-        prj_file = [os.path.join(tmpdirname, f.name) for f in uploaded_files if f.name.endswith('.prj')]
-
+        
         # Read the shapefile
         gdf = gpd.read_file(shp_file)
-
-        # Load CRS from .prj file if it exists
-        if prj_file:
-            try:
-                with open(prj_file[0], 'r') as f:
-                    crs_str = f.read().strip()
-                    crs = CRS(crs_str)
-                    gdf.crs = crs
-            except Exception as e:
-                st.error(f"Error reading CRS from .prj file: {e}")
-        else:
-            st.warning("No .prj file found. Defaulting CRS to EPSG:4326.")
-            gdf.crs = CRS.from_epsg(4326)
-
+       
         return gdf
 
 def callback_click():
@@ -335,7 +357,7 @@ def get_utm_epsg(lat, lon):
     
     return int(epsg_code)
 
-def get_epsg_from_rectangle(polygon_coordinates):
+def get_epsg_from_polygon(polygon_coordinates):
     """
     Returns the EPSG code for the UTM zone based on the centroid of the given rectangle coordinates.
 

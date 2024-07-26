@@ -60,6 +60,9 @@ if "data" not in st.session_state:
 if "epsg_location" not in st.session_state:
     st.session_state.epsg_location = 0
 
+if "name_area" not in st.session_state:
+    st.session_state.name_area = "No data"
+
 # Session variable to know when the download button has been clicked and then enter an if statement to launch the downloading from the drive
 if "download" not in st.session_state:
     st.session_state.download = 0
@@ -110,13 +113,20 @@ if "extracted_but_not_downloaded" not in st.session_state:
 
 
 
+
 # variable init
 default_start_date = datetime(2022, 1, 1)
 default_end_date = datetime(2022, 8, 31)
 min_date = datetime(2012,2,13)
 folder = None
 geo_json = ""
+
+svg_file_path = "images/Logo_G8.png"
+with open(svg_file_path, "rb") as file:
+    svg_content = file.read()
+st.set_page_config(page_title="Data Extraction",page_icon=svg_content)
 st.title("Data Extraction")
+
 
 ############################################### Everything that is on the left side ######################################
 options = list(geemap.basemaps.keys())
@@ -127,7 +137,7 @@ st.sidebar.title("Extraction of LST for a given study area",)
 basemap = st.sidebar.selectbox("Select a basemap:", options, index,disabled=st.session_state.gray)
 
 # Define placeholders and default values
-name_of_area = st.sidebar.text_input('Enter the name of the area', "No data",disabled=st.session_state.gray)
+name_of_area = st.sidebar.text_input('Enter the name of the area', st.session_state.name_area,disabled=st.session_state.gray)
 max_cloud_percentage = st.sidebar.slider('Select the maximum cloud percentage on land for LandSat extraction', 0, 100, 5,disabled=st.session_state.gray)
 coverage_threshold = st.sidebar.slider("Select the coverage threshold",0, 100, 90,disabled=st.session_state.gray )
 epsg_loation = st.sidebar.text_input("Enter EPSG location", st.session_state.epsg_location, disabled=True)
@@ -141,22 +151,14 @@ time_difference_gmt = st.sidebar.slider('Enter the time difference when compared
 
 ########################################### Main program ########################################################################
 
-# Set the size of the expander, otherwise it takes the whole page
-st.markdown("""
-    <style>
-        iframe {
-            height: 500px !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+# Set the size of the expander, otherwise it takes the whole page 
+# iframe.html.body.div.root
 
 # Create the map
-m = folium.Map(location=(1,20), zoom_start=3,width=800,height=500) 
+m = folium.Map(location=(1,20), zoom_start=3) 
 Draw().add_to(m)
 
 st.session_state.first_map = m
-
-
 uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
 
 if uploaded_files:
@@ -164,47 +166,51 @@ if uploaded_files:
 
     # Load the shapefile
     gdf = load_shapefile(uploaded_files)
-    epsg=gdf.crs.to_epsg()
-    print(epsg)
-    gdf = gdf.to_crs(epsg=epsg)
-    geometries = gdf['geometry']
-    centroid = geometries.centroid.iloc[0]
-    zoom = get_gdf_zoom(gdf)
-    print(zoom)
-    m = folium.Map(location=[centroid.y, centroid.x], zoom_start=zoom)
-    for geom in geometries:
-        geo_json = mapping(geom)
-        # print(geo_json)
-        folium.GeoJson(geo_json).add_to(m)
+    gdf = gdf.to_crs(epsg=4326)
+    
+    json_string = gdf.to_json()
+    json_gdf = json.loads(json_string)
+    coordinates = json_gdf["features"][0]["geometry"]["coordinates"][0]
+
+    centre, zoom = get_geometry_center_and_zoom_json(coordinates)
+    print(centre)
+
+
+    # Create a Folium map centered around the centroid
+    m = folium.Map(location=[*centre], zoom_start=zoom)
+    Draw().add_to(m)
+
+    folium.GeoJson(gdf).add_to(m)
+    folium.Marker(centre).add_to(m)
     st.session_state.first_map = m
 
 # This allow to hide the map when some button is pressed
 with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
-    output = st_folium(st.session_state.first_map, width=800, height=500,returned_objects="all")
-    print(output)
+    output = st_folium(st.session_state.first_map,height=700, use_container_width=True)
+    if uploaded_files:
+        json_string = gdf.to_json()
+        json_gdf = json.loads(json_string)
+        output["shape"] = json_gdf
     
 
 
 # To know what has been selected by the user and the drawing tool
-if 'last_active_drawing' in output and output['last_active_drawing'] is not None or geo_json:
+if 'last_active_drawing' in output and output['last_active_drawing'] is not None or "shape" in output:
     if 'last_active_drawing' in output and output['last_active_drawing'] is not None :
         last_drawing = output['last_active_drawing']
         if 'geometry' in last_drawing :
             geometry = last_drawing["geometry"]
             # geometry_type = last_drawing['geometry']['type']
-    elif geo_json :
-        geometry = geo_json
+    elif "shape" in output :
+        shape = output["shape"]["features"][0]
+        geometry = shape["geometry"]
     
     # print("\n",output)
     # if geometry_type == 'Polygon':
     # Extract coordinates of the drawn polygon
     coordinates = geometry['coordinates']
-    
-    epsg_code = get_epsg_from_rectangle(coordinates[0])
-    # city = update_location_info(coordinates=coordinates[0])
-    
+    epsg_code = get_epsg_from_polygon(coordinates[0])
     st.session_state.epsg_location = epsg_code
-    # st.session_state.city = city 
     
 
     # Convert the coordinates to ee.Geometry
@@ -217,8 +223,10 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
 
     # Get the center and zoom of the map for the second one to be focus on the good area
     center, zoom = get_geometry_center_and_zoom(ee_geometry)
+    print(center)
 
     m_geemap = geemap.Map(center=center, zoom=zoom)
+    # print(type(m_geemap))
     m_geemap.add_basemap(basemap=basemap)
 
     # Extract the data and return the map with LST visualisation

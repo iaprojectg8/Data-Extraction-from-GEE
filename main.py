@@ -4,7 +4,6 @@ import subprocess
 def start_streamlit():
     subprocess.run([
         "streamlit", "run", "extraction/extraction_script.py",
-        "--server.headless", "true",
         "--browser.serverAddress", ""
     ])
 
