@@ -129,7 +129,6 @@ def convert_to_csv():
     with col3:
         st.button("Stop CSV convertion", on_click=callback_kill)
         # Launch subprocess with a timeout
-    
     if st.session_state.launched:
 
 

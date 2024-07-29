@@ -22,8 +22,7 @@ if "launched" not in st.session_state:
     st.session_state.launched = 0
 if "kill" not in st.session_state:
     st.session_state.kill = 0
-if "process" not in st.session_state:
-    st.session_state.process = 0
+
 
 if "subprocess" not in st.session_state:
     st.session_state.subprocess = None
