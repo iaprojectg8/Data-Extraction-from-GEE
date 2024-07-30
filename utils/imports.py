@@ -1,4 +1,3 @@
-
 # Import for the folium map and all the folium functionalities
 import streamlit as st
 import folium
@@ -21,9 +20,11 @@ from datetime import datetime, date
 import json
 from shapely.geometry import Polygon, mapping
 import requests
+import geopandas as gpd
+import tempfile
+from pyproj import CRS
 
 # Import for the drive downloading
-import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -33,6 +34,3 @@ from googleapiclient.http import MediaIoBaseDownload
 from google.auth.exceptions import RefreshError
 
 
-import geopandas as gpd
-import tempfile
-from pyproj import CRS

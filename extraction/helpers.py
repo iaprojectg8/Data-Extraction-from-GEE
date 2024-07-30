@@ -1,8 +1,159 @@
 from utils.imports import *
-from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH
-from drive.drive import does_folder_exist_on_drive
+from utils.variables import GEE_PROJECT, DOWNLOAD_PATH, PYTHON_EXECUTABLE_PATH, LOGO_PATH
+from drive.drive import does_folder_exist_on_drive, get_files_from_drive
 
 
+def display_download():
+    progress_text=f"The download is done - {100}%"
+    st.progress(100, text=progress_text)
+    st.write(st.session_state.task_text_list_downloaded)
+    st.success("Everything has been downloaded")
+
+def download(folder):
+    print("All the files are going to be downloaded")
+    get_files_from_drive(path=st.session_state.folder_path,folder_name=folder)
+    print("Everyting done")
+    st.session_state.download = 0
+    st.session_state.downloaded_but_not_reset = 1
+    st.success("Everything has been downloaded")
+
+
+def organize_download_button():
+    # Widget for the download
+    col1, col2 = st.columns([1.2,0.20],gap="small", vertical_alignment="bottom")  # Adjust the column widths as needed
+    with col1:
+        st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
+        
+    with col2:
+        st.button("Save path", on_click=save_path)
+
+    st.button("Download folder", on_click=callback_download)
+    st.session_state.extracted_but_not_downloaded = 1 
+
+def display_export_progress():
+    if st.session_state.extracted_but_not_downloaded:
+        progress_text=f"The export is done - {100}%"
+        st.progress(100, text=progress_text)
+        st.write(st.session_state.task_text_list)
+    st.success('All the tasks exported')
+
+
+def organize_export_button():
+    col1, col2, col3, col4= st.columns(4)
+    
+    # Two buttons to launch or stop the export
+    with col2:
+        st.button("Launch exports",on_click=callback_launch)
+
+    with col3:
+        st.button("Stop", on_click=callback_stop_export)
+    
+    # Launch the export under cetain conditions
+    st.session_state.exported_but_not_downloaded = 0
+
+
+def get_ee_geometry(geometry):
+# Get the coordinates and calculate the EPSG
+    coordinates = geometry['coordinates']
+    epsg_code = get_epsg_from_polygon(coordinates[0])
+    st.session_state.epsg_location = epsg_code
+    
+
+    # Convert the coordinates to an ee.Geometry
+    ee_geometry = ee.Geometry.Polygon(coordinates)
+    if "geometry" not in st.session_state:
+        st.session_state.geometry = ee_geometry
+    if ee_geometry != st.session_state.geometry:
+        st.session_state.geometry = ee_geometry
+        callback_stop_export() 
+    return ee_geometry
+
+
+def fill_geometry(output):
+    # i am going to try to make a function with this part
+    if 'last_active_drawing' in output and output['last_active_drawing'] is not None :
+        last_drawing = output['last_active_drawing']
+        if 'geometry' in last_drawing :
+            geometry = last_drawing["geometry"]
+   
+    elif "shape" in output :
+        shape = output["shape"]["features"][0]
+        geometry = shape["geometry"]
+
+    return output, geometry
+
+
+
+
+def restrict_iframe():
+    # Set the size of the expander, otherwise it takes the whole page 
+    iframe_style = """
+    <style>
+        iframe{  
+            width:670px;
+            height:720px;
+        }
+    <style>
+    """
+
+    # Use st.markdown to display the iframe, and to restrict the expander size as said before
+    st.markdown(iframe_style, unsafe_allow_html=True)
+
+
+def map_expander(json_gdf):
+    # This allow to hide the map when some button is pressed
+    with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
+        output = st_folium(st.session_state.first_map, use_container_width=True)
+
+        if json_gdf:
+            output["shape"] = json_gdf
+        
+        return output
+        
+
+
+def map_initialization():
+    m = folium.Map(location=(1,20), zoom_start=3) 
+    Draw().add_to(m)
+    st.session_state.first_map = m
+    return m
+
+
+
+def file_uploader():
+    # Manage the file uploader
+    uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
+    if uploaded_files:
+        st.write("Files uploaded successfully!")
+
+        # Load the shapefile
+        gdf = load_shapefile(uploaded_files)
+        gdf = gdf.to_crs(epsg=4326)
+        
+        # Transform the geometry into a json 
+        json_string = gdf.to_json()
+        json_gdf = json.loads(json_string)
+
+        # Get the coordinates
+        coordinates = json_gdf["features"][0]["geometry"]["coordinates"][0]
+        centre, zoom = get_geometry_center_and_zoom_json(coordinates)
+
+        # Create a Folium map centered and zoomed to the right place
+        m = folium.Map(location=[*centre], zoom_start=zoom)
+        folium.GeoJson(gdf).add_to(m)
+        Draw().add_to(m)
+
+        # Put the map into a session variable to remind it
+        st.session_state.first_map = m  
+
+        return json_gdf
+
+
+def put_logo_if_possible():
+    with open(LOGO_PATH, "rb") as file:
+        svg_content = file.read()
+    st.set_page_config(page_title="Data Extraction",page_icon=svg_content)
+    st.title("Data Extraction")
 
 def get_geometry_center_and_zoom_json(coordinates):
     """
@@ -116,12 +267,12 @@ def convert_to_csv():
 
     if st.session_state.kill :
         progress = st.session_state.progress
-        progress_text =f"The conversion has been stopped: {0}%"
+        progress_text =f"The conversion has been stopped: {progress}%"
         progress_bar = st.progress(progress, progress_text)
-    else  :
-        progress = 0
-        progress_text =f"The conversion is not started: {0}%"
-        progress_bar = st.progress(progress, progress_text)
+    # else  :
+    #     progress = 0
+    #     progress_text =f"The conversion is not started: {0}%"
+    #     progress_bar = st.progress(progress, progress_text)
     
     col1, col2, col3, col4= st.columns(4)
     with col2:
@@ -130,11 +281,14 @@ def convert_to_csv():
         st.button("Stop CSV convertion", on_click=callback_kill)
         # Launch subprocess with a timeout
     if st.session_state.launched:
-
+        progress = 0
+        progress_text =f"The conversion is not started: {0}%"
+        progress_bar = st.progress(progress, progress_text)
 
         # Read progress updates from the subprocess
         while st.session_state.process.poll() is None:
             text_step = ""
+            
             for line in st.session_state.process.stdout:
                 
 

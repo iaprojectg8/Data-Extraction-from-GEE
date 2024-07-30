@@ -7,10 +7,8 @@ if path_to_add not in sys.path:
     sys.path.append(path_to_add)
 
 from extraction.helpers import *
-from utils.imports import *
-from utils.variables import *
-from drive.drive import get_files_from_drive
 from extraction.session_variables import *
+from drive.drive import get_files_from_drive
 
 # Authentication to a goole earth engine account and chose a project on which you are
 initialize_earth_engine()
@@ -24,10 +22,7 @@ min_date = datetime(2012,2,13)
 folder = None
 
 # In case the software is opened on a browser, the tab will have this title and the Groupe Huit logo
-with open(LOGO_PATH, "rb") as file:
-    svg_content = file.read()
-st.set_page_config(page_title="Data Extraction",page_icon=svg_content)
-st.title("Data Extraction")
+put_logo_if_possible()
 
 
 ############################################### Everything that is on the left side ######################################
@@ -51,87 +46,21 @@ time_difference_gmt = st.sidebar.slider('Enter the time difference when compared
 
 
 
-########################################### Main program ########################################################################
-
-# Set the size of the expander, otherwise it takes the whole page 
-iframe_style = """
-<style>
-    iframe{  
-        width:670px;
-        height:720px;
-    }
-<style>
-"""
-
-# Use st.markdown to display the iframe, and to restrict the expander size as said before
-st.markdown(iframe_style, unsafe_allow_html=True)
-
+########################################### Initialization  ########################################################################
+restrict_iframe()
 # Create a map 
-m = folium.Map(location=(1,20), zoom_start=3) 
-Draw().add_to(m)
-st.session_state.first_map = m
+m = map_initialization()
+json_gdf = file_uploader()
+output = map_expander(json_gdf)
 
-
-########################################## File uploader #######################################################################
-# Manage the file uploader
-uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
-if uploaded_files:
-    st.write("Files uploaded successfully!")
-
-    # Load the shapefile
-    gdf = load_shapefile(uploaded_files)
-    gdf = gdf.to_crs(epsg=4326)
     
-    # Transform the geometry into a json 
-    json_string = gdf.to_json()
-    json_gdf = json.loads(json_string)
-
-    # Get the coordinates
-    coordinates = json_gdf["features"][0]["geometry"]["coordinates"][0]
-    centre, zoom = get_geometry_center_and_zoom_json(coordinates)
-
-    # Create a Folium map centered and zoomed to the right place
-    m = folium.Map(location=[*centre], zoom_start=zoom)
-    folium.GeoJson(gdf).add_to(m)
-    Draw().add_to(m)
-
-    # Put the map into a session variable to remind it
-    st.session_state.first_map = m
-
-# This allow to hide the map when some button is pressed
-with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
-    output = st_folium(st.session_state.first_map, use_container_width=True)
-
-    if uploaded_files:
-        output["shape"] = json_gdf
-    
-
-
-########################################## Process the selection made by the user #########################################
+########################################## Process after the selection made by the user #########################################
 # To know what has been selected by the user and the drawing tool
 if 'last_active_drawing' in output and output['last_active_drawing'] is not None or "shape" in output:
-    if 'last_active_drawing' in output and output['last_active_drawing'] is not None :
-        last_drawing = output['last_active_drawing']
-        if 'geometry' in last_drawing :
-            geometry = last_drawing["geometry"]
-   
-    elif "shape" in output :
-        shape = output["shape"]["features"][0]
-        geometry = shape["geometry"]
-    
-    # Get the coordinates and calculate the EPSG
-    coordinates = geometry['coordinates']
-    epsg_code = get_epsg_from_polygon(coordinates[0])
-    st.session_state.epsg_location = epsg_code
-    
 
-    # Convert the coordinates to an ee.Geometry
-    ee_geometry = ee.Geometry.Polygon(coordinates)
-    if "geometry" not in st.session_state:
-        st.session_state.geometry = ee_geometry
-    if ee_geometry != st.session_state.geometry:
-        st.session_state.geometry = ee_geometry
-        callback_stop_export() 
+
+    output, geometry = fill_geometry(output=output)
+    ee_geometry = get_ee_geometry(geometry=geometry)
 
     # Get the center and zoom 
     center, zoom = get_geometry_center_and_zoom(ee_geometry)
@@ -160,19 +89,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
 
     # Display the map in case data has been extracted
     if st.session_state.data:
-        print(folder)
         st.session_state.second_map.to_streamlit()
-        col1, col2, col3, col4= st.columns(4)
-        
-        # Two buttons to launch or stop the export
-        with col2:
-            st.button("Launch exports",on_click=callback_launch)
+        organize_export_button()
 
-        with col3:
-            st.button("Stop", on_click=callback_stop_export)
-        
-        # Launch the export under cetain conditions
-        st.session_state.exported_but_not_downloaded = 0
         if st.session_state.button and st.session_state.end:
 
             # The task manager function is responsible for the export
@@ -183,35 +102,15 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
 
         if st.session_state.export_done:
             # It shows that the export has been done even if there is a modification on the map, or in the choice of the image
-            if st.session_state.extracted_but_not_downloaded:
-                progress_text=f"The export is done - {100}%"
-                st.progress(100, text=progress_text)
-                st.write(st.session_state.task_text_list)
-            st.success('All the tasks exported')
-
-            # Widget for the download
-
-            
-            col1, col2 = st.columns([1.2,0.20],gap="small", vertical_alignment="bottom")  # Adjust the column widths as needed
-            with col1:
-                st.text_input("Folder path", key='input_path',value=st.session_state.input_path, on_change=update_file_path)
-                
-            with col2:
-                save_clicked = st.button("Save path", on_click=save_path)
-
-            download_clicked = st.button("Download folder", on_click=callback_download)
-            st.session_state.extracted_but_not_downloaded = 1     
+            display_export_progress()
+            organize_download_button()
             
             # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
             if st.session_state.download:
                 
-                print("All the files are going to be downloaded")
-                get_files_from_drive(path=st.session_state.folder_path,folder_name=folder)
-                print("Everyting done")
-                st.session_state.download = 0
-                st.session_state.downloaded_but_not_reset = 1
-                st.success("Everything has been downloaded")
 
+                # Download all the folder exported to the drive
+                download(folder)
                 # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
                 convert_to_csv()
@@ -219,11 +118,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
 
             # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
             elif st.session_state.downloaded_but_not_reset:
-                progress_text=f"The download is done - {100}%"
-                st.progress(100, text=progress_text)
-                st.write(st.session_state.task_text_list_downloaded)
-                st.success("Everything has been downloaded")
                 
+                # Display the download process that just happened, just to remind, it does 
+                display_download()
                 # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
                 convert_to_csv()
