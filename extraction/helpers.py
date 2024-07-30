@@ -667,14 +667,31 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
     
 
     if on_coverage_filtered_collection.size().getInfo() != 0:
-        images_list = on_coverage_filtered_collection.toList(on_coverage_filtered_collection.size())
+        images_list = on_coverage_filtered_collection.toList(on_coverage_filtered_collection.size()).reverse()
+        python_list = images_list.getInfo()
+        entity_index =dict()
+        select_box_list = []
+        for i,image in enumerate(python_list):
+            
+            properties = image["properties"]
+            coverage = properties["coverage_percentage"]
+            date = properties['DATE_ACQUIRED']
+            cloud_cover = properties["CLOUD_COVER"]
+            landsat_type = properties["SPACECRAFT_ID"]
+            scene_hour = properties["SCENE_CENTER_TIME"].split(".")[0]
+            entity = f"Date and time: {date} {scene_hour} | Cloud cover: {round(cloud_cover,2)}% | Coverage: {round(coverage*100,2)}% | {landsat_type}"
+            select_box_list.append(entity)
+            entity_index[entity] = i
         image_count = images_list.size().getInfo()
+        print(image_count)
+        entity_chosen = st.selectbox(label=f"Chose an image, {len(python_list)} are available with your parameters",options=select_box_list)
+        index = entity_index[entity_chosen]
         
-        # In case the list has more than one element, we can create a slider
-        if image_count>1:
-            index = st.slider('Select image index', 0, image_count-1, 0)
-        else :
-            index = image_count-1
+        # # In case the list has more than one element, we can create a slider
+        # if image_count>1:
+        #     index = st.slider('Select image index', 0, image_count-1, 0)
+        # else :
+        #     index = image_count-1
             
         # This take the selection made by the user through the slider
         image = ee.Image(images_list.get(index)).clip(aoi)
@@ -694,10 +711,10 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         temp_max =  band_min_max.getInfo()['temp_max']
 
         # Gives information to the user avout the place and the EPSG projeciton used 
-        st.write(f"LST visualisation of {namelbl} with EPSG:{st.session_state.epsg_location}")
-        st.write(f"{date} - {scene_hour} - Cloud Cover: {cloud_cover} - {landsat_type} - Coverage: {coverage*100:.4}%")
-        st.write(f"Min: {temp_min:.2f}°C - Max: {temp_max:.2f}°C")
-
+        # st.write(f"LST visualisation of {namelbl} with EPSG:{st.session_state.epsg_location}")
+        # st.write(f"{namelbl} EPSG:{st.session_state.epsg_location} {date} - {scene_hour} - Cloud Cover: {cloud_cover}% - {landsat_type} - Coverage: {coverage*100:.4}%")
+        # st.write(f"Min: {temp_min:.2f}°C - Max: {temp_max:.2f}°C")
+        st.write(f"Area: {namelbl} - EPSG:{st.session_state.epsg_location} - Min: {temp_min:.2f}°C - Max: {temp_max:.2f}°C")
         # This session variable allow to display the map in case there are data
         st.session_state.data = 1
 

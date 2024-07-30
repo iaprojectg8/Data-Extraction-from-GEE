@@ -6,129 +6,24 @@ path_to_add = os.getcwd()
 if path_to_add not in sys.path:
     sys.path.append(path_to_add)
 
-
 from extraction.helpers import *
 from utils.imports import *
 from utils.variables import *
 from drive.drive import get_files_from_drive
+from extraction.session_variables import *
 
 # Authentication to a goole earth engine account and chose a project on which you are
 initialize_earth_engine()
-if "progress" not in st.session_state:
-    st.session_state.progress = 0
-if "complete_folder_path" not in st.session_state:
-    st.session_state.complete_folder_path = ""
-if "launched" not in st.session_state:
-    st.session_state.launched = 0
-if "kill" not in st.session_state:
-    st.session_state.kill = 0
 
-
-if "subprocess" not in st.session_state:
-    st.session_state.subprocess = None
-
-# Session variable to know if the user clicked on the converter button. If so the variable will be 1 else 0
-if "button_converter" not in st.session_state:
-    st.session_state.button_converter = 0
-
-# Session variable to know if the user clicked on the button. If so the variable will be 1 else 0
-if "button" not in st.session_state:
-    st.session_state.button = 0
-
-# Session variable to know if the task manager is finished. If so the variable will be 1 else 0, it means the task manager currently working
-if "end" not in st.session_state:
-    st.session_state.end = 1
-
-# Session variable to know the task status continuously
-if "status" not in st.session_state:
-    st.session_state.status = ""
-
-# Session variable that contains the task list made during the extract data. It will then be used to give information about the progress of the export
-if "task_list" not in st.session_state :
-    st.session_state.task_list = []
-
-# Session variable to know when the launch button has been clicked to hide the first map which cuts the export when being modified
-if "expanded" not in st.session_state :
-    st.session_state.expanded = 1
-
-# Session variable to know if the export data function has been successful and have got data in it
-if "data" not in st.session_state:
-    st.session_state.data = 0
-
-# Session variable to know what is the place of the selected area. Need to be change by the user typing in the right field, name area
-if "epsg_location" not in st.session_state:
-    st.session_state.epsg_location = 0
-
-if "name_area" not in st.session_state:
-    st.session_state.name_area = "No data"
-
-# Session variable to know when the download button has been clicked and then enter an if statement to launch the downloading from the drive
-if "download" not in st.session_state:
-    st.session_state.download = 0
-
-# Session varialbe to display information if the export has been completed
-if "export_done" not in st.session_state:
-    st.session_state.export_done = 0
-
-# Session variable to store the first map
-if "first_map" not in st.session_state:
-    st.session_state.first_map = None
-
-# Session variable to store the second map
-if "second_map" not in st.session_state:
-    st.session_state.second_map = None
-
-# Session variable to show the user information in case the download has been done
-if "download_done" not in st.session_state:
-    st.session_state.download_done = 0
-
-# Session variable to show information about the list of features exported in real time and after it has been done
-if "task_text_list" not in st.session_state:
-    st.session_state.task_text_list = ""
-
-# Session variable to show information about the list of features downloaded in real time and after it has been done
-if "task_text_list_downloaded" not in st.session_state:
-    st.session_state.task_text_list_downloaded = ""
-
-# Session variable to show information about the download, even after some modification when the stop button has not been clicked
-if "downloaded_but_not_reset" not in st.session_state:
-    st.session_state.downloaded_but_not_reset = 0
-
-# Session variable to track the folder path for the download
-if "folder_path" not in st.session_state:
-    st.session_state.folder_path = PATH
-
-# Session variable update the folder path when it is changed in the text input
-if 'input_path' not in st.session_state:
-    st.session_state.input_path = PATH
-
-# Session variable that allows to gray all the parameters on the left side
-if "gray" not in st.session_state:
-    st.session_state.gray = 0
-
-if "extracted_but_not_downloaded" not in st.session_state:
-    st.session_state.extracted_but_not_downloaded = 0
-
-
-
-
-
-# variable init
-
+# Init date interval and minimum
 current_year = date.today().year
-# Calculate the default end date (last day of December of the previous year)
 default_end_date = datetime(current_year - 1, 12, 31)
-
-# Calculate the default start date (first day of January two years before the current year)
 default_start_date = datetime(current_year - 2 , 1, 1)
-# default_start_date = datetime(2022, 1, 1)
-# default_end_date = datetime(2022, 8, 31)
 min_date = datetime(2012,2,13)
 
-
 folder = None
-geo_json = ""
 
+# In case the software is opened on a browser, the tab will have this title and the Groupe Huit logo
 with open(LOGO_PATH, "rb") as file:
     svg_content = file.read()
 st.set_page_config(page_title="Data Extraction",page_icon=svg_content)
@@ -159,15 +54,27 @@ time_difference_gmt = st.sidebar.slider('Enter the time difference when compared
 ########################################### Main program ########################################################################
 
 # Set the size of the expander, otherwise it takes the whole page 
-# iframe.html.body.div.root
+iframe_style = """
+<style>
+    iframe{  
+        width:670px;
+        height:720px;
+    }
+<style>
+"""
 
-# Create the map
+# Use st.markdown to display the iframe, and to restrict the expander size as said before
+st.markdown(iframe_style, unsafe_allow_html=True)
+
+# Create a map 
 m = folium.Map(location=(1,20), zoom_start=3) 
 Draw().add_to(m)
-
 st.session_state.first_map = m
-uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
 
+
+########################################## File uploader #######################################################################
+# Manage the file uploader
+uploaded_files = st.file_uploader("Choose shapefile components", type=["shp", "shx", "dbf", "prj"], accept_multiple_files=True)
 if uploaded_files:
     st.write("Files uploaded successfully!")
 
@@ -175,52 +82,50 @@ if uploaded_files:
     gdf = load_shapefile(uploaded_files)
     gdf = gdf.to_crs(epsg=4326)
     
+    # Transform the geometry into a json 
     json_string = gdf.to_json()
     json_gdf = json.loads(json_string)
+
+    # Get the coordinates
     coordinates = json_gdf["features"][0]["geometry"]["coordinates"][0]
-
     centre, zoom = get_geometry_center_and_zoom_json(coordinates)
-    print(centre)
 
-
-    # Create a Folium map centered around the centroid
+    # Create a Folium map centered and zoomed to the right place
     m = folium.Map(location=[*centre], zoom_start=zoom)
+    folium.GeoJson(gdf).add_to(m)
     Draw().add_to(m)
 
-    folium.GeoJson(gdf).add_to(m)
-    folium.Marker(centre).add_to(m)
+    # Put the map into a session variable to remind it
     st.session_state.first_map = m
 
 # This allow to hide the map when some button is pressed
 with st.expander("Draw a zone", st.session_state.expanded,icon=":material/draw:"):
-    output = st_folium(st.session_state.first_map,height=700, use_container_width=True)
+    output = st_folium(st.session_state.first_map, use_container_width=True)
+
     if uploaded_files:
-        json_string = gdf.to_json()
-        json_gdf = json.loads(json_string)
         output["shape"] = json_gdf
     
 
 
+########################################## Process the selection made by the user #########################################
 # To know what has been selected by the user and the drawing tool
 if 'last_active_drawing' in output and output['last_active_drawing'] is not None or "shape" in output:
     if 'last_active_drawing' in output and output['last_active_drawing'] is not None :
         last_drawing = output['last_active_drawing']
         if 'geometry' in last_drawing :
             geometry = last_drawing["geometry"]
-            # geometry_type = last_drawing['geometry']['type']
+   
     elif "shape" in output :
         shape = output["shape"]["features"][0]
         geometry = shape["geometry"]
     
-    # print("\n",output)
-    # if geometry_type == 'Polygon':
-    # Extract coordinates of the drawn polygon
+    # Get the coordinates and calculate the EPSG
     coordinates = geometry['coordinates']
     epsg_code = get_epsg_from_polygon(coordinates[0])
     st.session_state.epsg_location = epsg_code
     
 
-    # Convert the coordinates to ee.Geometry
+    # Convert the coordinates to an ee.Geometry
     ee_geometry = ee.Geometry.Polygon(coordinates)
     if "geometry" not in st.session_state:
         st.session_state.geometry = ee_geometry
@@ -228,12 +133,11 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
         st.session_state.geometry = ee_geometry
         callback_stop_export() 
 
-    # Get the center and zoom of the map for the second one to be focus on the good area
+    # Get the center and zoom 
     center, zoom = get_geometry_center_and_zoom(ee_geometry)
-    print(center)
 
+    # Create another map and put the basemap chosen by the user
     m_geemap = geemap.Map(center=center, zoom=zoom)
-    # print(type(m_geemap))
     m_geemap.add_basemap(basemap=basemap)
 
     # Extract the data and return the map with LST visualisation
@@ -251,7 +155,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
         namelbl=name_of_area
     )
 
+    # Put the second map in a session variable
     st.session_state.second_map = m_geemap
+
     # Display the map in case data has been extracted
     if st.session_state.data:
         print(folder)
@@ -268,12 +174,11 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
         # Launch the export under cetain conditions
         st.session_state.exported_but_not_downloaded = 0
         if st.session_state.button and st.session_state.end:
-            # The task manager function is responsible for the export
 
+            # The task manager function is responsible for the export
             task_manager(folder_existance=folder_existance)
             st.session_state.export_done = 1
             st.session_state.extracted_but_not_downloaded = 0
-            print(st.session_state.downloaded_but_not_reset)
                         
 
         if st.session_state.export_done:
@@ -306,8 +211,8 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 st.session_state.download = 0
                 st.session_state.downloaded_but_not_reset = 1
                 st.success("Everything has been downloaded")
-                ## This will be the futures button to convert the downloaded files into one CSV containing everything
-                
+
+                # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
                 convert_to_csv()
         
@@ -319,6 +224,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 st.write(st.session_state.task_text_list_downloaded)
                 st.success("Everything has been downloaded")
                 
+                # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
                 convert_to_csv()
             
