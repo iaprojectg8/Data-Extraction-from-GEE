@@ -114,14 +114,22 @@ if "extracted_but_not_downloaded" not in st.session_state:
 
 
 # variable init
-default_start_date = datetime(2022, 1, 1)
-default_end_date = datetime(2022, 8, 31)
+
+current_year = date.today().year
+# Calculate the default end date (last day of December of the previous year)
+default_end_date = datetime(current_year - 1, 12, 31)
+
+# Calculate the default start date (first day of January two years before the current year)
+default_start_date = datetime(current_year - 2 , 1, 1)
+# default_start_date = datetime(2022, 1, 1)
+# default_end_date = datetime(2022, 8, 31)
 min_date = datetime(2012,2,13)
+
+
 folder = None
 geo_json = ""
 
-svg_file_path = "images/Logo_G8.png"
-with open(svg_file_path, "rb") as file:
+with open(LOGO_PATH, "rb") as file:
     svg_content = file.read()
 st.set_page_config(page_title="Data Extraction",page_icon=svg_content)
 st.title("Data Extraction")

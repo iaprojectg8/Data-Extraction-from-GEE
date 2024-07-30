@@ -17,7 +17,7 @@ import time
 import threading
 import subprocess
 import os
-from datetime import datetime
+from datetime import datetime, date
 import json
 from shapely.geometry import Polygon, mapping
 import requests

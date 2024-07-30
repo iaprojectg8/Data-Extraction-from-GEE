@@ -6,6 +6,7 @@ DOWNLOAD_PATH = "drive/download_path.txt"
 
 PYTHON_EXECUTABLE_PATH = "pyqgis/utils/python_executable.json"
 
+LOGO_PATH = "images/logo/Logo_G8.png"
 
 # This scope is the only one to use because this is the one that provide all the abilities on files and folders
 SCOPE = "https://www.googleapis.com/auth/drive"
