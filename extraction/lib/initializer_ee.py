@@ -1,5 +1,5 @@
 from utils.imports import *
-from utils.variables import GEE_PROJECT
+from utils.variables import GEE_PROJECT, CREDENTIALS_PATH
 
 
 def initialize_earth_engine():
@@ -20,12 +20,10 @@ def initialize_earth_engine():
     try:
         # Attempt to authenticate and initialize Earth Engine
         ee.Authenticate()
-        
-        # Read the Earth Engine project configuration from file
-        with open(GEE_PROJECT, 'r') as f:
-            config = json.load(f)
 
-        ee.Initialize(project=config["project"])
+        # Read the Earth Engine project configuration from file again
+        project_name = get_project_name()
+        ee.Initialize(project=project_name)
         
     except ee.ee_exception.EEException as e:
         print("An Earth Engine exception occurred during initialization:", e)
@@ -52,13 +50,19 @@ def reinitialize_earth_engine():
         # Force re-authentication
         ee.Authenticate(force=True)
         
+        
         # Read the Earth Engine project configuration from file again
-        with open(GEE_PROJECT, 'r') as f:
-            config = json.load(f)
+        project_name = get_project_name()
 
-        ee.Initialize(project=config["project"])
+        ee.Initialize(project=project_name)
         
     except ee.ee_exception.EEException as e:
         print("An Earth Engine exception occurred during re-initialization:", e)
         # Handle the exception as needed, such as logging or retrying
 
+def get_project_name():
+    with open(CREDENTIALS_PATH, 'r') as f:
+            config = json.load(f)
+
+    return config["installed"]['project_id']
+    

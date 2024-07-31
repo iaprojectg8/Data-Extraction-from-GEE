@@ -1,6 +1,9 @@
 from utils.imports import *
 from utils.variables import *
 
+
+######################################### Handle credentials
+
 def get_credentials():
     """
     Get user credentials for Google Drive API. Then put the file resulting content in the json file token.json
@@ -31,7 +34,7 @@ def get_credentials():
     return creds
 
 def handling_creds():
-  """
+    """
     It can happen that whatever how the creds can be loaded from the token.json, even with the condition that we put. 
     So we decided to create a function that deletes the token.json in case there is a weird exception, and then 
     call again the get_credentials method to recreate it.
@@ -39,25 +42,28 @@ def handling_creds():
     Returns:
         Credentials: Authenticated user credentials.
     """
-  creds_ok = 0
-  while not creds_ok:
-    try:
-      # Try to laod or create the credentials
-      creds = get_credentials()
-      creds_ok = 1
-
-    # In case of error it removes the file token.json that contains the token 
-    except RefreshError as e:
-        print(f"Error in main program: {e}")
-        print("We will try to reconnect you to your google account to recreate the credentials")
+    creds_ok = 0
+    while not creds_ok:
         try:
-            os.remove(TOKEN_PATH)
-            print(f"File '{TOKEN_PATH}' successfully deleted.")
+            # Try to laod or create the credentials
             creds = get_credentials()
             creds_ok = 1
-        except OSError as e:
-            print(f"Error deleting file '{TOKEN_PATH}': {e}")
-  return creds
+
+        # In case of error it removes the file token.json that contains the token 
+        except RefreshError as e:
+            print(f"Error in main program: {e}")
+            print("We will try to reconnect you to your google account to recreate the credentials")
+            try:
+                os.remove(TOKEN_PATH)
+                print(f"File '{TOKEN_PATH}' successfully deleted.")
+                creds = get_credentials()
+                creds_ok = 1
+            except OSError as e:
+                print(f"Error deleting file '{TOKEN_PATH}': {e}")
+    return creds
+
+
+######################################### Get informatin from the drive
 
 
 def list_folders(service):
@@ -65,10 +71,10 @@ def list_folders(service):
     List all folders in Google Drive.
 
     Args:
-        service: Authorized Drive API service instance.
+        service (googleapiclient.discovery.Resource): Authorized Drive API service instance.
 
     Returns:
-        list: List of folder items.
+        items or [] (list): List of folder items.
     """
     # Make the request to get the folders name and their id 
     try:
@@ -91,7 +97,7 @@ def list_files(service, folder_id):
     List all files in a specific folder in Google Drive.
 
     Args:
-        service: Authorized Drive API service instance.
+        service (googleapiclient.discovery.Resource): Authorized Drive API service instance.
         folder_id (str): ID of the folder to list files from.
 
     Returns:
@@ -121,7 +127,7 @@ def get_folder_id(items, UHI_name):
         UHI_name (str): Name of the folder to find.
 
     Returns:
-        str: ID of the folder if found, None if not found.
+        item["id"] (str): ID of the folder if found, None if not found.
     """
     for item in items:
         if item["name"] == UHI_name:
@@ -129,14 +135,17 @@ def get_folder_id(items, UHI_name):
     return None
 
 
+######################################### Download process
+
+
 def download_files(service, files, download_path):
     """
     Download files from Google Drive.
 
     Args:
-        service: Authorized Drive API service instance.
-        files: List of files to download, each file should be a dict with 'id' and 'name'.
-        download_path: Path to the directory where files will be downloaded.
+        service (googleapiclient.discovery.Resource): Authorized Drive API service instance.
+        files (list): List of files to download, each file should be a dict with 'id' and 'name'.
+        download_path (str): Path to the directory where files will be downloaded.
     """
 
     # Create the destination folder if it does not exist
@@ -154,11 +163,11 @@ def download_files(service, files, download_path):
             file_id = file['id']
             file_name = file['name']
             name = "_".join(file_name.split("_")[:-1])
-            print(name)
             task_description_list.append(name)
-            print(task_description_list)
             st.session_state.task_text_list_downloaded = " - ".join(task_description_list)
             writer.write(st.session_state.task_text_list_downloaded)
+
+            # Make the request
             request = service.files().get_media(fileId=file_id)
             file_path = os.path.join(download_path, file_name)
             
@@ -177,14 +186,13 @@ def download_files(service, files, download_path):
 
 
 
-
 def get_files_from_drive(path,folder_name):
     """
     Download files from Google Drive.
 
     Args:
-        path: The download will take place in this path
-        folder_name: Name of the drive folder to download
+        path (str): The download will take place in this path
+        folder_name (str): Name of the drive folder to download
     Returns:
         None : In case the folder on the drive is empty
     """
@@ -196,7 +204,6 @@ def get_files_from_drive(path,folder_name):
     # Path init to save the downloaded file
     folder_name = folder_name  # Then this should not be hard coded because it will be the name of the folder created when exported during the extraction
     folder_path = os.path.join(path, folder_name)
-    print(folder_path)
     
     # Create the receiving data folder if it does not exist
     if not os.path.exists(folder_path):
@@ -230,9 +237,9 @@ def does_folder_exist_on_drive(folder_name):
     Verify if a folder already exists on the drive
 
     Args:
-        folder_name: Name of the drive folder that exists or that will be created
+        folder_name (str): Name of the drive folder that exists or that will be created
     Returns:
-        Bool : Return 1 if the folder is in the list of the drive 0 otherwise
+        0 or 1 : Return 1 if the folder is in the list of the drive 0 otherwise
     """
     # Handling credentials
     print("Handling creds")
@@ -248,8 +255,7 @@ def does_folder_exist_on_drive(folder_name):
     if not folders:
         print("No folders found.")
         return 0
-    print(folders)
-    print(folder_name)
+    print("Folder name: ",folder_name)
     folder_name_in_list = [folder["name"]==folder_name for folder in folders]
     
     return any(folder_name_in_list)

@@ -33,12 +33,11 @@ def update_location_info(coordinates):
     """
     polygon = Polygon(coordinates)
     centroid = polygon.centroid
-    print(centroid)
     # Perform reverse geocoding
     url = f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={centroid.y}&lon={centroid.x}"
     response = requests.get(url)
     data = response.json()
-    print(data)
+
     if "address" in data:
         if "city" in data["address"]:
             city = data["address"]["city"]
