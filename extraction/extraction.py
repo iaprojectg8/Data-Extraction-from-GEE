@@ -6,9 +6,16 @@ path_to_add = os.getcwd()
 if path_to_add not in sys.path:
     sys.path.append(path_to_add)
 
-from extraction.helpers import *
-from extraction.session_variables import *
-from drive.drive import get_files_from_drive
+from lib.initializer_ee import initialize_earth_engine
+from lib.helpers import put_logo_if_possible
+from lib.map import *
+from lib.geometry import *
+from lib.uploader import file_uploader
+from lib.widgets import *
+from lib.extract import extract_data
+from lib.tasks import task_manager
+from lib.session_variables import *
+
 
 # Authentication to a goole earth engine account and chose a project on which you are
 initialize_earth_engine()
@@ -19,7 +26,8 @@ default_end_date = datetime(current_year - 1, 12, 31)
 default_start_date = datetime(current_year - 2 , 1, 1)
 min_date = datetime(2012,2,13)
 
-folder = None
+# Init the folder name
+folder_name = None
 
 # In case the software is opened on a browser, the tab will have this title and the Groupe Huit logo
 put_logo_if_possible()
@@ -46,14 +54,13 @@ time_difference_gmt = st.sidebar.slider('Enter the time difference when compared
 
 
 
-########################################### Map initialization  ########################################################################
+# Map init
 restrict_iframe()
 m = map_initialization()
 json_gdf = file_uploader()
 output = map_expander(json_gdf)
 
-    
-########################################## Process after the selection made by the user #########################################
+
 # To know what has been selected by the user and the drawing tool
 if 'last_active_drawing' in output and output['last_active_drawing'] is not None or "shape" in output:
 
@@ -69,7 +76,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
     m_geemap.add_basemap(basemap=basemap)
 
     # Extract the data and return the map with LST visualisation
-    m_geemap, folder, folder_existance = extract_data(    
+    m_geemap, folder_name, folder_existance = extract_data(    
         map = m_geemap,
         aoi=ee_geometry,
         EPSGloc=str(st.session_state.epsg_location),
@@ -109,9 +116,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 
 
                 # Download all the folder exported to the drive
-                download(folder)
+                download(folder_name)
                 # This prepare the entire extraction folder path to give it to the conversion function
-                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder_name)
                 organize_conversion_button()
         
 
@@ -121,7 +128,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 # Display the download process that just happened, just to remind, it does 
                 display_download()
                 # This prepare the entire extraction folder path to give it to the conversion function
-                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder_name)
                 organize_conversion_button()
             
                 
