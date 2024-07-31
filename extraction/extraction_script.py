@@ -46,9 +46,8 @@ time_difference_gmt = st.sidebar.slider('Enter the time difference when compared
 
 
 
-########################################### Initialization  ########################################################################
+########################################### Map initialization  ########################################################################
 restrict_iframe()
-# Create a map 
 m = map_initialization()
 json_gdf = file_uploader()
 output = map_expander(json_gdf)
@@ -80,7 +79,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
         endhour=str(end_hour),
         dechour=str(time_difference_gmt),
         maxcloud=max_cloud_percentage,
-        coverage_threshold=coverage_threshold,
+        coverage_threshold=coverage_threshold/100,
         namelbl=name_of_area
     )
 
@@ -98,7 +97,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
             task_manager(folder_existance=folder_existance)
             st.session_state.export_done = 1
             st.session_state.extracted_but_not_downloaded = 0
-                        
+            
 
         if st.session_state.export_done:
             # It shows that the export has been done even if there is a modification on the map, or in the choice of the image
@@ -113,7 +112,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 download(folder)
                 # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
-                convert_to_csv()
+                organize_conversion_button()
         
 
             # Keep in mind the download informations even if the page is reload because of whatever move done by the user on it
@@ -123,7 +122,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 display_download()
                 # This prepare the entire extraction folder path to give it to the conversion function
                 st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder)
-                convert_to_csv()
+                organize_conversion_button()
             
                 
                 
