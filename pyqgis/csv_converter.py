@@ -3,17 +3,35 @@ from pyqgis.utils.qgis_variables import DATA_FOLDER, RESULTS_FOLDER
 from pyqgis.algorithms.Script_Préparation_Données import ExtractionDuFichierCsvPourOutilIa
 
 def make_csv(city):
+    """
+    Add the csv extension at a city name
+
+    Args:
+        city (str): City name that will be the CSV file name as well
+    Return:
+        city+".csv" (str): CSV filename of the city
+    """
     return city+".csv"
 
 
 def reorganize_folder(path):
+    """
+    Create data and results folder if they don't exist et return their paths. 
+    Additionnally it moves the files from the folder root to the data folder
+
+    Args:
+        path (str): Path to the folder where the data are
+    Returns:
+        data_folder_path (str): Data folder path 
+        results_folder_path (str): Results folder path
+    """
     print(path)
     folder_dir = os.listdir(path)
+
     if DATA_FOLDER in folder_dir:
         print("Data folder already created")
         data_folder_path= os.path.join(path,DATA_FOLDER)
         print(data_folder_path)
-        data_created = 1
     else : 
         data_folder_path = os.path.join(path,DATA_FOLDER)
         print(data_folder_path)
@@ -37,24 +55,39 @@ def reorganize_folder(path):
     return data_folder_path, results_folder_path
 
 def get_epsg_and_city(entire_path:str):
-    # separator = r'[\\\\/]'
-    # folder_name = re.split(entire_path,separator)
-    # print(folder_name)
-    # print(folder_name[-1])
+    """
+    Get epsg and city name from the path, as it provides it
+
+    Args:
+        entire_path (str): Entire path to the data folder
+    Returns: 
+        epsg (str): EPSG code for the data
+        city (str): City corresponding to the data
+    """
+    # Get folder name string to then get the epsg and the city
     folder_name = entire_path.split("\\")[-1]
     folder_name_list = folder_name.split("_")
+    
+    # Get the epsg code
     epsg = folder_name_list[-1]
-    date = "_".join([folder_name_list[-4],folder_name_list[-3],folder_name_list[-2]])
-    print(date)
     uhi = folder_name_list[:-5]
-    print(uhi)
+
+    # Get the city name
     city ="_".join(uhi[1:])
-    print(city)
     return epsg, city 
 
 
-def set_emprise_de_calcul(landsat_path, epsg):
+def set_aoi(landsat_path, epsg):
+    """
+    Set the AOI
 
+    Args:
+        landsat_path (str): Entire path to the data folder
+        epsg (str): EPSG code
+    Returns: 
+        epsg (str): EPSG code for the data
+        city (str): City corresponding to the data
+    """
     if landsat_path:
         try:
             landsat_layer = QgsRasterLayer(landsat_path, "Landsat Image")
@@ -62,20 +95,34 @@ def set_emprise_de_calcul(landsat_path, epsg):
 
                 target_crs = QgsCoordinateReferenceSystem('EPSG:4326')
                 original_crs = QgsCoordinateReferenceSystem(f'EPSG:{epsg}')
+
+                # Prepare a tool to transform an extent from a CRS to another
                 coordinate_transform = QgsCoordinateTransform(original_crs, target_crs, QgsProject.instance())
                 extent = landsat_layer.extent()
+
+                # Now we use the tool that we have created to transform the extent
                 transform_extent = coordinate_transform.transformBoundingBox(extent)
                 print("transform extent", transform_extent)
-                emprise_de_calcul = transform_extent
-                print(emprise_de_calcul)
+                aoi = transform_extent
+                print(aoi)
             else:
-                emprise_de_calcul = None
+                aoi = None
         except Exception as e:
             print(f"Error setting extent: {str(e)}")
-    return emprise_de_calcul
+    return aoi
 
-def get_parameters(data_path, results_path, epsg_num, city):
-    # Here we are in the data folder automatically because the python
+def set_parameters(data_path, results_path, epsg_num, city):
+    """
+    Set all the parameters in a dictionary to give them afterward to the algorithm 
+
+    Args:
+        data_path (str): Entire path to the data folder
+        results_path (str): Entire path to the results folder
+        epsg_num (str): EPSG code
+        city (str): City corresponding to the data
+    Returns: 
+        parameters (dict): This dictionary contains all the parameters that the algorithm needs to work
+    """
     # List all files in the directory
     files_in_directory = os.listdir(data_path)
     print(files_in_directory)
@@ -121,9 +168,9 @@ def get_parameters(data_path, results_path, epsg_num, city):
                 zone_climatique_raster = os.path.join(data_path,file)
             # Tableur en sortie condition
             
-    emprise_de_calcul_uhi = set_emprise_de_calcul(lst_raster,epsg=epsg)
+    emprise_de_calcul_uhi = set_aoi(lst_raster,epsg=epsg)
 
-    return {
+    parameters = {
         'image_landsat_9': lst_raster,
         'numro_de_bande_de_la_lst': 7,
         'rsolution_de_la_couche_lst_m': 30,
@@ -148,27 +195,35 @@ def get_parameters(data_path, results_path, epsg_num, city):
         'tableur_sortie': tableur_sortie
     }
 
+    return parameters
+
 if __name__ == '__main__':
 
+    # Initialize pyqgis 
     app = QApplication(sys.argv)
     Processing.initialize()
 
+    # This allows to take the path given by the main program, extraction.pys
     parser = argparse.ArgumentParser(description='Run QGIS processing with specified path.')
     parser.add_argument('path', type=str, help='Path to the input directory')
     args = parser.parse_args()
 
+    # Get the epsg and the city name from the path given by the main program
     path = args.path
-    print(path)
     epsg, city = get_epsg_and_city(path)
-    print(city)
+
+    # Reorganize the folder given by the path
     data_path, results_path = reorganize_folder(path)
-    print("result path", results_path)
-    parameters = get_parameters(data_path, results_path,epsg_num=epsg,city=city)
+    print("Result path :", results_path)
+
+    # Set the parameters
+    parameters = set_parameters(data_path, results_path,epsg_num=epsg,city=city)
     print(parameters)  # For testing, print the parameters
 
-    # # Use the parameters to run your QGIS processing algorithm
+    # Initialize algorithm, context, feedback
     algorithm = ExtractionDuFichierCsvPourOutilIa()
     context = QgsProcessingContext()
     feedback = QgsProcessingFeedback()
 
+    # Run the algorithm
     result = algorithm.processAlgorithm(parameters, context, feedback)

@@ -902,7 +902,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'OUTPUT': parameters['tableur_sortie']
         }
 
-        print("INFO:Albedo Calculation")
+        print("INFO:Albedo Calculation and CSV generation")
         outputs['CalculDeLalbedo'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -911,15 +911,6 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             return {}
         self.print_progress(step,total_step)
         
-
-        print("CSV generation")
-        results['TableurEnSortie'] = outputs['CalculDeLalbedo']['OUTPUT']
-        
-        step+=1
-        feedback.setCurrentStep(step)
-        if feedback.isCanceled():
-            return {}
-        self.print_progress(step,total_step)
 
         print("Total step in the algorithm:",step)
         return results
