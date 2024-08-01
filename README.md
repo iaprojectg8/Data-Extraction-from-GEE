@@ -123,6 +123,7 @@ If you exceed the amount of requests that you can do on Google Earth Engine, you
 
 ### Earth engine project
 First if you do not have any Google Earth Engines project, you need to create one. To do this I recommend you to watch this video:
+
 [![Watch the video](images/project/image_gee.png)](https://www.youtube.com/watch?v=nbSafTubU14)
 
 
