@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 # We need this to be able to access the entire repo
 path_to_add = os.getcwd()
 if path_to_add not in sys.path:
@@ -72,8 +73,8 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
     center, zoom = get_geometry_center_and_zoom(ee_geometry)
 
     # Create another map and put the basemap chosen by the user
-    m_geemap = geemap.Map(center=center, zoom=zoom)
-    m_geemap.add_basemap(basemap=basemap)
+    m_geemap = geemap_initialization(center, zoom, basemap=basemap)
+    
 
     # Extract the data and return the map with LST visualisation
     m_geemap, folder_name, folder_existance = extract_data(    

@@ -44,7 +44,16 @@ def map_initialization():
     Returns:
         m : It corresponds to the created map
     """
-    m = folium.Map(location=(1,20), zoom_start=3) 
+    m = folium.Map(location=(1,20), zoom_start=3,control_scale=True) 
     Draw().add_to(m)
+    MiniMap().add_to(m)
+    Geocoder().add_to(m)
     st.session_state.first_map = m
     return m
+
+
+def geemap_initialization(center, zoom, basemap):
+    m_geemap = geemap.Map(center=center, zoom=zoom,control_scale=True)
+    m_geemap.add_basemap(basemap=basemap)
+    MiniMap().add_to(m_geemap)
+    return m_geemap

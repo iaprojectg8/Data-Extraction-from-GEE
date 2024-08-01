@@ -2,7 +2,7 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from folium.plugins import Draw 
+from folium.plugins import Draw, MiniMap, Geocoder
 
 # Import to use the Google Earth Engine function
 import ee

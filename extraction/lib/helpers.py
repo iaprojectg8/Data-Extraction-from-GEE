@@ -10,15 +10,6 @@ def put_logo_if_possible():
     st.title("Data Extraction")
 
 
-def get_python_executable_name():
-    """
-    Get the python executable name looking for it in a json file
-    """
-    with open(PYTHON_EXECUTABLE_PATH, 'r') as f:
-        config = json.load(f)
-        python_executable_name = config["python_name"]
-    return python_executable_name
-
 
 # This function is not used at all in the process, this is just a function that is very interesting
 def update_location_info(coordinates):

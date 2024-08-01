@@ -1,5 +1,6 @@
 from utils.imports import *
-from lib.helpers import get_python_executable_name
+
+from pyqgis.utils.python_qgis import get_python_qgis
 
 
 ######################################### Export callbacks
@@ -69,7 +70,7 @@ def callback_click():
     
     # Assign a subprocess Popen to a session variable
     st.session_state.process = subprocess.Popen(
-            [f"{get_python_executable_name()}", 'pyqgis/csv_converter.py',f"{st.session_state.complete_folder_path}"],
+            [get_python_qgis(), 'pyqgis/csv_converter.py',f"{st.session_state.complete_folder_path}"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True  # This makes sure the output is read as text instead of bytes
