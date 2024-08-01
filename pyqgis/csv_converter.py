@@ -168,7 +168,7 @@ def set_parameters(data_path, results_path, epsg_num, city):
                 zone_climatique_raster = os.path.join(data_path,file)
             # Tableur en sortie condition
             
-    emprise_de_calcul_uhi = set_aoi(lst_raster,epsg=epsg)
+    uhi_aoi = set_aoi(lst_raster,epsg=epsg)
 
     parameters = {
         'image_landsat_9': lst_raster,
@@ -181,7 +181,7 @@ def set_parameters(data_path, results_path, epsg_num, city):
         'raster_de_la_catgorie_hydrologique': categorie_hydrologique_raster,
         'raster_de_la_zone_climatique_lcz': zone_climatique_raster,
         'scr_de_projection_des_donnes': QgsCoordinateReferenceSystem(epsg_num), 
-        'emprise_de_calcul_de_luhi': emprise_de_calcul_uhi,  # Presumably set elsewhere
+        'emprise_de_calcul_de_luhi': uhi_aoi,  # Presumably set elsewhere
         'nom_du_champ_daltitude': 'ALT',
         'nom_du_champ_de_nature_du_sol': 'NATSOL',
         'nom_du_champ_de_pente': 'PENTE',
