@@ -19,7 +19,7 @@ This application allows you to extract Land Surface Temperature (LST) data for a
 
 ## Setup
 
-If you don't have python, you can go to the Microsoft Store and download `Python 3.11` or `Python 3.12`
+If you don't have python, you can go to the Microsoft Store and download `Python 3.11` or `Python 3.12`. Something else imoprtant: **In the terminal if you don't see the path of your location in the computer, it means the precedent command is not finished yet.** This is important for the virtual environment setup, because the installation of python package can be quite long.
 
 1. **Download ZIP**: 
 Downlaod the zip version of this project. To do this you need to be on the [GitHub project page](https://github.com/iaprojectg8/Data-Extraction-from-GEE):
@@ -30,9 +30,10 @@ Downlaod the zip version of this project. To do this you need to be on the [GitH
 
 2. **Exract file**: After downloading the zip file, **extract** it in the location you want on your computer.
 
-3. **Open Terminal or CMD**: Go to the extracted location and open the folder in your **terminal** or **CMD**. To do this you can right click and the folder **`Data-Extraction-from-GEE-main`** and chose **`Open in Terminal`**
+3. **Open Terminal or CMD**: Go to the extracted location and open the folder in your **terminal** or **CMD**. To do this you can right click and the folder **`Data-Extraction-from-GEE-main`** and chose **`Open in Terminal`**. If the right click does not provide you this option, you can write `cmd` in the address bar, like on the following video.
+![Gif to open cmd](images/osgeo4w/go_to_cmd.gif)
 
-4. **Create a python virtual environement**:
+4. **Create a python virtual environment**:
 
 ```
 python -m venv extractenv
@@ -91,6 +92,12 @@ To execute the program, still in the terminal or command prompt run this :
 ```
 python main.py
 ```
+
+From this each time the program will open a window to select a Google account, you will have to chose the G8 one, `g8tool@gmail.com`. If you did the connection before, as it was indicated you will not have to put the password again, if you did not, put the password when it is asked. Also each time Google will ask authorization, you will accept, clicking on `Continue`.
+
+Also for the **`Download`** part, don't forget to change the path with one of your choice, of course one that exists. 
+
+Finally for the conversion part, you if did everything well, it should create two folders inside of your downloaded one, named `Data` and `Results`. In the data, there are all the images extracted and downloaded from the drive in the TIF format. In the `Results` one, you should have only the CSV file
 
 ## The App
 On the application, you have 2 main parts, the parameters and the map. Select your own parameters.
