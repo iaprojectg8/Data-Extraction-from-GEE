@@ -2,6 +2,7 @@ from utils.imports import *
 from utils.variables import LC89_BANDS, STD_NAMES
 from drive.drive import does_folder_exist_on_drive
 from lib.tasks import put_all_task_in_list
+from lib.callbacks import callback_stop_export
 
 ######################################### Calculation on ee data
 
@@ -260,11 +261,12 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         folder_existance (bool): Just to know if this folder name exists on the drive
     """
     # Coverage threshold corresponds to the part of the image that exists in the temperature band
+    parameters_list = list((aoi, EPSGloc, startdate, enddate, starthour, endhour, dechour, maxcloud,coverage_threshold))
     folder = None
     folder_existance = 0
-      
+
     imageL8, imageL9 = extract_image_collection(aoi=aoi, startdate=startdate, enddate=enddate, maxcloud=maxcloud)
-    
+
     # Recalculating the start and end hours depending on where the area is in the world
     real_start_hour = add_hours(starthour, dechour)
     real_end_hour = add_hours(endhour, dechour)
@@ -272,41 +274,68 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
     # Merging all the image collection into a single one, also filtering on the hour
     images_merged = ee.ImageCollection(imageL8.merge(imageL9)) \
                     .filter(ee.Filter.calendarRange(real_start_hour, real_end_hour, "hour"))
-    
 
-    # Filtering the image collection with a coverage threshold
+    # Put a filter on the image collection to keep the images that respects the threeshold
     coverage_collection = images_merged.map(lambda image : calculate_coverage(image, aoi))
     on_coverage_filtered_collection =  coverage_collection.filter(ee.Filter.gte('coverage_percentage', coverage_threshold))
-    
+  
 
     if on_coverage_filtered_collection.size().getInfo() != 0:
 
-        # Get an image list based on the coverage threshold
-        images_list = on_coverage_filtered_collection.toList(on_coverage_filtered_collection.size()).reverse()
-        python_list = images_list.getInfo()
-        entity_to_index, select_box_list = manage_available_images(python_list=python_list)
+        # If the parameters don't change, we don't need to redo the following operation
+        # Thus it saves some time.
+        if parameters_list != st.session_state.parameters_list:
+
+            # Here we get the available list of images that corresponds to the coverage filter
+            images_list = on_coverage_filtered_collection.toList(on_coverage_filtered_collection.size()).reverse()
+            st.session_state.images_list = images_list
+            
+            # Put the list in a python list to have this in local, and accelerate the process
+            python_list = images_list.getInfo()
+            st.session_state.python_list = python_list
+            st.session_state.parameters_list = parameters_list
+            callback_stop_export()
+
+        entity_to_index, select_box_list = manage_available_images(python_list=st.session_state.python_list)
+    
 
         # Selection made by the user
-        entity_chosen = st.selectbox(label=f"Chose an image, {len(python_list)} are available with your parameters",options=select_box_list)
+        entity_chosen = st.selectbox(label=f"Chose an image, {len(st.session_state.python_list)} are available with your parameters",options=select_box_list)
+        if entity_chosen == st.session_state.entity_chosen:
+            # Keep writing information if the user launch an export or a download
+            st.write(f"Area: {namelbl} - EPSG:{st.session_state.epsg_location} - Min: {st.session_state.temp_min:.2f}°C - Max: {st.session_state.temp_max:.2f}°C")
+            return st.session_state.second_map, st.session_state.folder, st.session_state.folder_existance
+        
+        # All the following part is not executed if all the parameters are the same, and the 
+        # images chosen by the user in the selectbox is the same as well
+        st.session_state.entity_chosen = entity_chosen
         index = entity_to_index[entity_chosen]
         
         # Get the selected image
-        image = ee.Image(images_list.get(index)).clip(aoi)
+        image = ee.Image(st.session_state.images_list.get(index)).clip(aoi)
         date = str(image.getInfo()["properties"]['DATE_ACQUIRED'])
+        
    
         temp_min, temp_max = get_temp_min_max(image=image, aoi=aoi)
+        st.session_state.temp_min = temp_min
+        st.session_state.temp_max = temp_max
 
         # Display information for the user
         st.write(f"Area: {namelbl} - EPSG:{st.session_state.epsg_location} - Min: {temp_min:.2f}°C - Max: {temp_max:.2f}°C")
+
         # This session variable allow to display the map in case there are data
         st.session_state.data = 1
-
+          
+        # The visualisation is the part that takes the most of time
         create_and_add_visualizations(temp_min=temp_min, temp_max=temp_max, map=map, image=image)
         CRS, UTM, folder = get_folder_properties(epsg=EPSGloc, date=date, area_name=namelbl, index=index)
-    
+        st.session_state.folder_name = folder
+        
     
         if does_folder_exist_on_drive(folder):
             folder_existance = 1
+
+        st.session_state.folder_existance = folder_existance
 
         # Put the list of every task into a session state variable
         st.session_state.task_list = put_all_task_in_list(image=image, UTM=UTM, folder=folder, aoi=aoi, CRS=CRS)

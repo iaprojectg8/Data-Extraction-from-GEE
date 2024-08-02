@@ -41,12 +41,14 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         percent = step / total_step
         print(f"PROGRESS:{percent}")
         sys.stdout.flush() 
+        sys.stdout.flush() 
 
     
     def processAlgorithm(self, parameters, context, model_feedback):
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         print(parameters)
+        sys.stdout.flush() 
         feedback = QgsProcessingMultiStepFeedback(43, model_feedback)
         results = {}
         outputs = {}
@@ -76,6 +78,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Hydrologic category reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLaCatgorieHydrologique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         
@@ -105,6 +108,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Soil group reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLaNatureDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         
@@ -134,6 +138,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:DEM reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDuMnt'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         
@@ -164,6 +169,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Canopy height reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLaHauteurArbore'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
 
@@ -190,6 +196,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Landocover reprojection")
+        sys.stdout.flush() 
         outputs['DcoupageDeLaNatureDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         
@@ -215,6 +222,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:DEM cut")
+        sys.stdout.flush() 
         outputs['DcoupageDuMnt'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         step+=1
         feedback.setCurrentStep(step)
@@ -236,6 +244,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Hydrologic category cut")
+        sys.stdout.flush() 
         outputs['DcoupageDeLaCatgorieHydrologique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -262,6 +271,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Landcover reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLoccupationDuSol'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -288,6 +298,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LST reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLimageLandsat'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -309,6 +320,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Canopy height cut")
+        sys.stdout.flush() 
         outputs['DcoupageDeLaHauteurArbore'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -335,6 +347,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LCZ reprojection")
+        sys.stdout.flush() 
         outputs['ReprojectionDeLaZoneClimatique'] = processing.run('gdal:warpreproject', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -356,6 +369,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LST cut")
+        sys.stdout.flush() 
         outputs['DcoupageDeLimageLandsat'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -371,6 +385,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Band selection")
+        sys.stdout.flush() 
         outputs["BandSelection"] = processing.run('gdal:rearrange_bands', alg_params_rearrange, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -391,6 +406,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LST band cut")
+        sys.stdout.flush() 
         outputs['DcoupageLS'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -413,6 +429,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }        
         
         print("INFO:Exposition calculation")
+        sys.stdout.flush() 
         outputs['CalculDeLexposition'] = processing.run('gdal:aspect', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -430,6 +447,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LST vectorization")
+        sys.stdout.flush() 
         outputs['VectorisationDeLimageLandsat9Lst'] = processing.run('native:pixelstopoints', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -452,6 +470,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Slope calculation")
+        sys.stdout.flush() 
         outputs['CalculDeLaPente'] = processing.run('gdal:slope', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -473,6 +492,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Landcover cut")
+        sys.stdout.flush() 
         outputs['DcoupageDeLoccupationDuSol'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -494,6 +514,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LCZ cut")
+        sys.stdout.flush() 
         outputs['DcoupageDeLaZoneClimatique'] = processing.run('gdal:cliprasterbyextent', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -512,6 +533,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Create x and y")
+        sys.stdout.flush() 
         outputs['AjouterLesChampsXyLaCouche'] = processing.run('native:addxyfields', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -531,6 +553,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename y field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampY'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -548,6 +571,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename x field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampX'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -565,6 +589,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LST band extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDesBandesLandsat'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -582,6 +607,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Landcover extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLoccupationDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -599,6 +625,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename landcover field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDoccupationDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -619,6 +646,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Urban rural extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDuCaractreUrbainrural'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -636,6 +664,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Altitude extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaltitude'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -653,6 +682,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename altitude field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDaltitude'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -670,6 +700,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Exposition extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLexposition'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -687,6 +718,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename exposition field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDexposition'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -703,6 +735,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         print("INFO:Slope extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaPente'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -720,6 +753,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename slope field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDePente'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -736,6 +770,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         print("INFO:Soil group extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaNatureDuSol'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -753,6 +788,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename soil group field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDeNatureDuSol'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -770,6 +806,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Canopy height extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaHauteurArbore'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -787,6 +824,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename canopy height field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDeHauteurArbore'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -804,6 +842,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Hydrologic category extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaCatgorieHydrologique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -821,6 +860,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Rename hydrologic category field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDeCatgorieHydrologique'] = processing.run('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -838,6 +878,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:LCZ extraction")
+        sys.stdout.flush() 
         outputs['ExtractionDeLaZoneClimatique'] = processing.run('native:rastersampling', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -855,6 +896,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
         
         print("INFO:Rename LCZ field")
+        sys.stdout.flush() 
         outputs['RenommageDuChampDeZoneClimatique'] = processing.run ('native:renametablefield', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -882,6 +924,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Nan deleting")
+        sys.stdout.flush() 
         outputs['SuppressionDesPointsAvecDonnesAttributairesNan'] = processing.run('native:extractbyexpression', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -903,6 +946,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         }
 
         print("INFO:Albedo Calculation and CSV generation")
+        sys.stdout.flush() 
         outputs['CalculDeLalbedo'] = processing.run('native:fieldcalculator', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
         
         step+=1
@@ -913,6 +957,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
         
 
         print("Total step in the algorithm:",step)
+        sys.stdout.flush() 
         return results
 
     def name(self):

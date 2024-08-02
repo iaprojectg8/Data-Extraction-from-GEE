@@ -91,9 +91,8 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
         namelbl=name_of_area
     )
 
-    # Put the second map in a session variable
     st.session_state.second_map = m_geemap
-
+    
     # Display the map in case data has been extracted
     if st.session_state.data:
         st.session_state.second_map.to_streamlit()
@@ -115,11 +114,12 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
             # If the button has been clicked, then the get_file_from_drive function is running, so the download is processed
             if st.session_state.download:
                 
-
+                print(st.session_state.folder_name)
                 # Download all the folder exported to the drive
-                download(folder_name)
+                download(st.session_state.folder_name)
                 # This prepare the entire extraction folder path to give it to the conversion function
-                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder_name)
+                
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, st.session_state.folder_name)
                 organize_conversion_button()
         
 
@@ -129,8 +129,9 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
                 # Display the download process that just happened, just to remind, it does 
                 display_download()
                 # This prepare the entire extraction folder path to give it to the conversion function
-                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, folder_name)
+                st.session_state.complete_folder_path = os.path.join(st.session_state.folder_path, st.session_state.folder_name)
                 organize_conversion_button()
+                
             
                 
                 

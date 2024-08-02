@@ -123,11 +123,14 @@ def organize_conversion_button():
                 if line.startswith("PROGRESS:"):
                     progress=round(float(line.split(":")[-1])*100)
                     st.session_state.progress = progress
-                    progress_text =f"The conversion is ongoing: {progress}% - {text_step}"
-                    progress_bar.progress(progress,text=progress_text)
+                    
 
                 elif line.startswith("INFO:"):
                     text_step = line.split(":")[-1]
+
+                # Allows to have the information text on a good timing
+                progress_text =f"The conversion is ongoing: {progress}% - {text_step}"
+                progress_bar.progress(progress,text=progress_text)
         
                 print(line)
              

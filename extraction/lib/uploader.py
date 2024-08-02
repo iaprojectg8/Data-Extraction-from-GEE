@@ -1,5 +1,6 @@
 from utils.imports import *
 from lib.geometry import get_geometry_center_and_zoom_json
+from lib.helpers import flatten_with_coordinates
 
 def load_shapefile(uploaded_files):
     """
@@ -25,6 +26,8 @@ def load_shapefile(uploaded_files):
         
         # Read the shapefile
         gdf = gpd.read_file(shp_file)
+        
+
        
         return gdf
 
@@ -50,8 +53,11 @@ def file_uploader():
         json_gdf = json.loads(json_string)
 
         # Get the coordinates
-        coordinates = json_gdf["features"][0]["geometry"]["coordinates"][0]
+     
+        coordinates = json_gdf["features"][0]["geometry"]["coordinates"]
+        coordinates = flatten_with_coordinates(coordinates)
         centre, zoom = get_geometry_center_and_zoom_json(coordinates)
+   
 
         # Create a Folium map centered and zoomed to the right place
         m = folium.Map(location=[*centre], zoom_start=zoom)

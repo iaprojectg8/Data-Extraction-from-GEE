@@ -12,6 +12,41 @@ if "first_map" not in st.session_state:
 if "second_map" not in st.session_state:
     st.session_state.second_map = None
 
+########################################## Accelerate process ########################################################################
+
+
+# Session variable for the entity selected by the selectbox
+if "entity_chosen" not in st.session_state:
+    st.session_state.entity_chosen = None
+
+# Session variable to store the folder name
+if "folder_name" not in st.session_state:
+    st.session_state.folder_name = None
+
+# Session variable to know if the folder already exists on the drive
+if "folder_existance" not in st.session_state:
+    st.session_state.folder_existance = None
+
+# Session variable to store the temperature minimum and to display it 
+if "temp_min" not in st.session_state:
+    st.session_state.temp_min = None
+
+# Session variable to store the temperature maximum and to display it 
+if "temp_max" not in st.session_state:
+    st.session_state.temp_max = None
+
+# Session variable to store the python list, to avoid having to reload it from GEE
+if "python_list" not in st.session_state:
+    st.session_state.python_list = None
+
+
+################################################ Manage the display and the parameters    
+
+if "parameters_list" not in st.session_state:
+    st.session_state.parameters_list = []
+
+if "images_list" not in st.session_state:
+    st.session_state.images_list = None
 
 ################################################ Manage export #################################################################
 

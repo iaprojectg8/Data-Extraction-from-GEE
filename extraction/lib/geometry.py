@@ -1,5 +1,6 @@
 from utils.imports import *
 from lib.callbacks import callback_stop_export
+from lib.helpers import flatten_with_coordinates
 
 
 ######################################### Work directly with geometry
@@ -40,11 +41,16 @@ def get_ee_geometry(geometry):
     """
     # Get the coordinates and calculate the EPSG
     coordinates = geometry['coordinates']
-    epsg_code = get_epsg_from_polygon(coordinates[0])
+    if geometry["type"] == "MultiPolygon":
+        flatten_coordinates = flatten_with_coordinates(coordinates)
+        epsg_code = get_epsg_from_polygon(flatten_coordinates)
+        ee_geometry = ee.Geometry.MultiPolygon(coordinates)
+    elif geometry["type"] == "Polygon":
+        epsg_code = get_epsg_from_polygon(coordinates[0])
+        ee_geometry = ee.Geometry.Polygon(coordinates)
+
     st.session_state.epsg_location = epsg_code
     
-    # Convert the coordinates to an ee.Geometry
-    ee_geometry = ee.Geometry.Polygon(coordinates)
     if "geometry" not in st.session_state:
         st.session_state.geometry = ee_geometry
     if ee_geometry != st.session_state.geometry:

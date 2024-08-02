@@ -114,7 +114,6 @@ def lst_task(image, UTM, folder, aoi, CRS):
         folder=folder,
         scale=30,
         maxPixels = 1e13,
-        region=aoi.getInfo()['coordinates'],
         crs = CRS,
         fileFormat='GeoTIFF'
     )

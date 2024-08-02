@@ -10,6 +10,29 @@ def put_logo_if_possible():
     st.title("Data Extraction")
 
 
+def flatten_with_coordinates(nested_list):
+    """
+    Flattens a list of lists while preserving coordinates as tuples.
+    
+    Parameters:
+    nested_list (list): A nested list structure where coordinates are tuples of size 2.
+    
+    Returns:
+    list: A flat list with coordinates preserved as tuples.
+    """
+    flat_list = []
+
+    for item in nested_list:
+        if isinstance(item, list) and len(item) != 2:
+            flat_list.extend(flatten_with_coordinates(item))
+        else:
+            flat_list.append(item)
+        # else:
+        #     raise ValueError("All coordinates must be tuples of size 2")
+
+    return flat_list
+
+
 
 # This function is not used at all in the process, this is just a function that is very interesting
 def update_location_info(coordinates):
