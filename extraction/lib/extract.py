@@ -304,7 +304,7 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         if entity_chosen == st.session_state.entity_chosen:
             # Keep writing information if the user launch an export or a download
             st.write(f"Area: {namelbl} - EPSG:{st.session_state.epsg_location} - Min: {st.session_state.temp_min:.2f}°C - Max: {st.session_state.temp_max:.2f}°C")
-            return st.session_state.second_map, st.session_state.folder, st.session_state.folder_existance
+            return st.session_state.second_map, st.session_state.folder_name, st.session_state.folder_existance
         
         # All the following part is not executed if all the parameters are the same, and the 
         # images chosen by the user in the selectbox is the same as well
