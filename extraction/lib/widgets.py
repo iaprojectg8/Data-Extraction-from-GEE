@@ -105,7 +105,7 @@ def organize_conversion_button():
     with col2:
         st.button("Convert to CSV", on_click=callback_click)
     with col3:
-        st.button("Stop CSV convertion", on_click=callback_kill)
+        st.button("Stop CSV conversion", on_click=callback_kill)
 
     # Initialize the progress bar
     if st.session_state.launched:

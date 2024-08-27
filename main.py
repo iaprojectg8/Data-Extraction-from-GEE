@@ -9,8 +9,8 @@ def start_streamlit():
     ])
 
 # Start Streamlit in a separate thread
-t = threading.Thread(target=start_streamlit)
-t.start()
+thread = threading.Thread(target=start_streamlit)
+thread.start()
 
 # Create a webview window to display the Streamlit app
 webview.create_window('Extraction App', 'http://localhost:8501')
