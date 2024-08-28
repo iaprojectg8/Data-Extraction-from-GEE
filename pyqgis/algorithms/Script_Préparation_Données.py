@@ -640,7 +640,7 @@ class ExtractionDuFichierCsvPourOutilIa(QgsProcessingAlgorithm):
             'FIELD_NAME': parameters['nom_du_champ_pour_le_caractre_urbainrural'],
             'FIELD_PRECISION': 0,
             'FIELD_TYPE': 1,  # Entier (32bit)
-            'FORMULA': 'CASE WHEN attribute( $currentfeature ,  @nom_du_champ_doccupation_du_sol ) = 6 THEN 1\r\nELSE 0\r\nEND',
+            'FORMULA': 'CASE WHEN "{}" = 6 THEN 1 ELSE 0 END'.format(parameters['nom_du_champ_doccupation_du_sol']),
             'INPUT': outputs['RenommageDuChampDoccupationDuSol']['OUTPUT'],
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
