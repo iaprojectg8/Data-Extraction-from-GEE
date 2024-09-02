@@ -94,7 +94,7 @@ if 'last_active_drawing' in output and output['last_active_drawing'] is not None
     st.session_state.second_map = m_geemap
     
     # Display the map in case data has been extracted
-    if st.session_state.data:
+    if st.session_state.second_map:
         st.session_state.second_map.to_streamlit()
         organize_export_button()
 
