@@ -303,6 +303,10 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         entity_chosen = st.selectbox(label=f"Chose an image, {len(st.session_state.python_list)} are available with your parameters",options=select_box_list)
         if entity_chosen == st.session_state.entity_chosen:
             # Keep writing information if the user launch an export or a download
+            CRS, UTM, folder = get_folder_properties(epsg=EPSGloc, date=st.session_state.date, area_name=namelbl, index=st.session_state.index)
+            st.session_state.folder_name = folder
+            if does_folder_exist_on_drive(folder):
+                folder_existance = 1
             st.write(f"Area: {namelbl} - EPSG:{st.session_state.epsg_location} - Min: {st.session_state.temp_min:.2f}°C - Max: {st.session_state.temp_max:.2f}°C")
             return st.session_state.second_map, st.session_state.folder_name, st.session_state.folder_existance
         
@@ -310,10 +314,12 @@ def extract_data(map:geemap.Map,aoi:ee.geometry, EPSGloc, startdate, enddate, st
         # images chosen by the user in the selectbox is the same as well
         st.session_state.entity_chosen = entity_chosen
         index = entity_to_index[entity_chosen]
+        st.session_state.index = index
         
         # Get the selected image
         image = ee.Image(st.session_state.images_list.get(index)).clip(aoi)
         date = str(image.getInfo()["properties"]['DATE_ACQUIRED'])
+        st.session_state.date = date
         
    
         temp_min, temp_max = get_temp_min_max(image=image, aoi=aoi)

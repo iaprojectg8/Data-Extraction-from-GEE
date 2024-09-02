@@ -85,6 +85,12 @@ if "epsg_location" not in st.session_state:
 if "name_area" not in st.session_state:
     st.session_state.name_area = "No data"
 
+if "index" not in st.session_state:
+    st.session_state.index = None
+
+if "date" not in st.session_state:
+    st.session_state.date = None
+
 
 ################################################ Manage download  #################################################################
 
